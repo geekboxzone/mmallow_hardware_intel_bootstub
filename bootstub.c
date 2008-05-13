@@ -55,7 +55,8 @@ static void *memset(void *s, int c, size_t count)
 static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 {
 	memset(bp, 0, sizeof (struct boot_params));
-	memcpy(&bp->hdr, sh, sizeof (struct setup_header));	
+	memcpy(&bp->hdr, sh, sizeof (struct setup_header));
+	bp->hdr.cmd_line_ptr = CMDLINE_OFFSET;
 }
 
 static int get_32bit_entry(unsigned char *ptr)
