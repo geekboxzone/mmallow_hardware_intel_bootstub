@@ -75,7 +75,9 @@ static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 	bp->hdr.cmd_line_ptr = CMDLINE_OFFSET;
 	bp->hdr.cmdline_size = strnlen((const char *)CMDLINE_OFFSET,256);
 	bp->hdr.ramdisk_size = *(u32 *)INITRD_SIZE_OFFSET;
-	bp->hdr.ramdisk_image = BZIMAGE_OFFSET + *(u32 *)BZIMAGE_SIZE_OFFSET + *(u32 *)INITRD_SIZE_OFFSET;
+	bp->hdr.ramdisk_image = (bp->alt_mem_k*1024 - bp->hdr.ramdisk_size) & ~(0x0f);
+	memcpy((u8*)bp->hdr.ramdisk_image, (u8 *)BZIMAGE_OFFSET + *(u32 *)BZIMAGE_SIZE_OFFSET + *(u32 *)INITRD_SIZE_OFFSET,
+		bp->hdr.ramdisk_size);
 }
 
 static int get_32bit_entry(unsigned char *ptr)

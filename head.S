@@ -10,7 +10,7 @@
 
 /* When bootstub get control, the memory map in DRAM is like:
  *		~			~
- * 0x102000	|	initrd		| initrd will move to high memory otherwise 
+ * 0x102000	|	initrd		| initrd will move to highest memory otherwise 
  *+bzImage size +-----------------------+ bzImage uncompressing will destory it
  *		|	bzImage		|
  * 0x102000	+-----------------------+
