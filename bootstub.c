@@ -55,6 +55,9 @@ static void *memset(void *s, int c, size_t count)
 static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 {
 	memset(bp, 0, sizeof (struct boot_params));
+	bp->screen_info.orig_video_mode = 1;
+	bp->screen_info.orig_video_lines = 25;
+	bp->screen_info.orig_video_cols = 80;
 	memcpy(&bp->hdr, sh, sizeof (struct setup_header));
 	bp->hdr.cmd_line_ptr = CMDLINE_OFFSET;
 	bp->hdr.cmdline_size = *(u32*)CMDLINE_SIZE;
@@ -65,7 +68,7 @@ static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 static int get_32bit_entry(unsigned char *ptr)
 {
 	while (1){
-		if (*(u32 *)ptr == SETUP_SIGNATURE)
+		if (*(u32 *)ptr == SETUP_SIGNATURE && *(u8*)(ptr+4) == 0)
 			break;
 		ptr++;
 	}
