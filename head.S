@@ -39,19 +39,19 @@
 _start:
 	cld
 	cli
-	/* DS=ES=FS=GS=10 */
-	movl 0x2, %eax	
-	movl %eax, %ds
-	movl %eax, %es
-	movl %eax, %fs
-	movl %eax, %gs
-	movl %eax, %ss
 	/* setup stack, because we are heading off to "C" */
 	movl $STACK_OFFSET, %esp
 	/* after call main, GDT was set (0x10 and 0x18) IDT was clear
 	 * eax will store 32bit entry of bzImage
          */
 	calll main
+	/* DS=ES=FS=GS=10 */
+	movl $__BOOT_DS, %ebx	
+	movl %ebx, %ds
+	movl %ebx, %es
+	movl %ebx, %fs
+	movl %ebx, %gs
+	movl %ebx, %ss
 	ljmp $__BOOT_CS,$1f
 1:	
 	/* tell kernel where is boot_param */

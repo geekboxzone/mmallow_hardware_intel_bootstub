@@ -75,10 +75,14 @@ static int get_32bit_entry(unsigned char *ptr)
 
 int main(void)
 {
+	*(char*)0xb8000='A';
 	setup_idt();
+	*(char*)0xb8000='B';
 	setup_gdt();
+	*(char*)0xb8000='C';
 	setup_boot_params((struct boot_params *)BOOT_PARAMS_OFFSET, 
 		(struct setup_header*)SETUP_HEADER_OFFSET);
+	*(char*)0xb8000='D';
 	return get_32bit_entry((unsigned char *)BZIMAGE_OFFSET);
 }
 
