@@ -10,18 +10,20 @@
 
 /* When bootstub get control, the memory map in DRAM is like:
  *		~			~
- * 0x102000	|	initramfs	|
- *+bzImage size +-----------------------+
+ * 0x102000	|	initrd		| initrd will move to high memory otherwise 
+ *+bzImage size +-----------------------+ bzImage uncompressing will destory it
  *		|	bzImage		|
  * 0x102000	+-----------------------+
  *		|	boot stub	|
  * 0x101000	+-----------------------+
  *		|	free space	|
- *		|	used as stack   |
+ *		|	used as stack	|
+ * 0x10010c	+-----------------------+
+ *		|	initrd size	| MIC need to fill it according to bzImage size
  * 0x100108	+-----------------------+
- *		|	initramfs offset| MIC need to fill it according to bzImage size
+ *		|	bzImage size	| MIC need to fill it according to initrd  size
  * 0x100104	+-----------------------+
- *		|	initramfs size	| MIC need to fill it according to initrd  size
+ *		|	mem size	| MIC need to fill it
  * 0x100100	+-----------------------+
  *		|	kernel cmdline	| MIC need to fill it
  * 0x100000	+-----------------------+
