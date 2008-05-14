@@ -52,15 +52,28 @@ static void *memset(void *s, int c, size_t count)
         return s;
 }
 
+static size_t strnlen(const char *s, size_t maxlen)
+{
+        const char *es = s;
+        while (*es && maxlen) {
+                es++;
+                maxlen--;
+        }
+
+        return (es - s);
+}
+
+
 static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 {
 	memset(bp, 0, sizeof (struct boot_params));
 	bp->screen_info.orig_video_mode = 1;
 	bp->screen_info.orig_video_lines = 25;
 	bp->screen_info.orig_video_cols = 80;
+	bp->alt_mem_k = 256*1024;
 	memcpy(&bp->hdr, sh, sizeof (struct setup_header));
 	bp->hdr.cmd_line_ptr = CMDLINE_OFFSET;
-	bp->hdr.cmdline_size = *(u32*)CMDLINE_SIZE;
+	bp->hdr.cmdline_size = strnlen((const char*)CMDLINE_OFFSET,256);
 	bp->hdr.ramdisk_size = *(u32*)INITRD_SIZE;
 	bp->hdr.ramdisk_image = *(u32*)INITRD_OFFSET + CMDLINE_OFFSET;
 }

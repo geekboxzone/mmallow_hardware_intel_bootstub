@@ -17,13 +17,11 @@
  *		|	boot stub	|
  * 0x101000	+-----------------------+
  *		|	free space	|
- *		|	used as stack   | MIC need to pad this to 0
- * 0x10010c	+-----------------------+
- *		|	initramfs offset| MIC need to fill it
+ *		|	used as stack   |
  * 0x100108	+-----------------------+
- *		|	initramfs size	| MIC need to fill it
+ *		|	initramfs offset| MIC need to fill it according to bzImage size
  * 0x100104	+-----------------------+
- *		|	cmdline size	| MIC need to fill it
+ *		|	initramfs size	| MIC need to fill it according to initrd  size
  * 0x100100	+-----------------------+
  *		|	kernel cmdline	| MIC need to fill it
  * 0x100000	+-----------------------+
