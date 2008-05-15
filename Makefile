@@ -1,6 +1,9 @@
 OBJ=bootstub.o head.o
 
-all: bootstub.bin
+all: bootstub
+
+bootstub:bootstub.bin
+	cat bootstub.bin /dev/zero | dd bs=4096 count=1 > $@
 
 bootstub.bin:bootstub.elf
 	objcopy -O binary -R .note -R .comment -S $< $@
