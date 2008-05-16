@@ -70,7 +70,7 @@ static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 	bp->screen_info.orig_video_mode = 1;
 	bp->screen_info.orig_video_lines = 25;
 	bp->screen_info.orig_video_cols = 80;
-	bp->alt_mem_k = *(u32 *)MEMORY_SIZE_OFFSET*1024;
+	bp->alt_mem_k = (*(u32 *)MEMORY_SIZE_OFFSET)*1024;
 	memcpy(&bp->hdr, sh, sizeof (struct setup_header));
 	bp->hdr.cmd_line_ptr = CMDLINE_OFFSET;
 	bp->hdr.cmdline_size = strnlen((const char *)CMDLINE_OFFSET,256);
