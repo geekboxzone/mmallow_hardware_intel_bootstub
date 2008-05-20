@@ -18,12 +18,10 @@
  * 0x101000	+-----------------------+
  *		|	free space	|
  *		|	used as stack	|
- * 0x10010c	+-----------------------+
- *		|	initrd size	| MIC need to fill it according to bzImage size
  * 0x100108	+-----------------------+
- *		|	bzImage size	| MIC need to fill it according to initrd  size
+ *		|	initrd size	| MIC need to fill it according to bzImage size
  * 0x100104	+-----------------------+
- *		|	mem size	| MIC need to fill it
+ *		|	bzImage size	| MIC need to fill it according to initrd  size
  * 0x100100	+-----------------------+
  *		|	kernel cmdline	| MIC need to fill it
  * 0x100000	+-----------------------+
@@ -41,10 +39,10 @@ _start:
 	cli
 	/* setup stack, because we are heading off to "C" */
 	movl $STACK_OFFSET, %esp
-	/* after call main, GDT was set (0x10 and 0x18) IDT was clear
+	/* after call bootstub, GDT was set (0x10 and 0x18) IDT was clear
 	 * eax will store 32bit entry of bzImage
          */
-	calll main
+	calll bootstub
 	/* DS=ES=FS=GS=10 */
 	movl $__BOOT_DS, %ebx	
 	movl %ebx, %ds
