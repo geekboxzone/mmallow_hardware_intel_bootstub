@@ -20,4 +20,9 @@ head.o:head.S
 clean:
 	rm -rf *.o *.bin *.elf
 
-.PHONY: all clean
+targz:bootstub.tar.gz
+
+bootstub.tar.gz:bootstub.c head.S
+	git-archive --prefix=bootstub/ --format=tar HEAD | gzip -c > bootstub.tar.gz
+
+.PHONY: all clean targz
