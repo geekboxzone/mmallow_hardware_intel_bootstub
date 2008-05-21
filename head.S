@@ -1,14 +1,31 @@
-/* head.S for bootstub to load protected mode kernel
- * Copyright (C) 2008 Alek Du <alek.du@intel.com>
- * 
+/*
+ * head.S for bootstub to load protected mode kernel
+ * Copyright (C) 2008, Alek Du <alek.du@intel.com> Intel Corporation.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms and conditions of the GNU General Public License,
+ * version 2, as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 
+ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ */
+
+/*
+ *
  * Note. When FW hand-off control to bootstub, the CPU is already in protected
  * Mode with 1. GDT(8)=4G GDT(10)=4G
  *           2. CS=8, DS=ES=FS=GS=10
  *           3. Paging mode disabled
  *           4. Interrupt ENABLED
- */ 
-
-/* When bootstub get control, the memory map in DRAM is like:
+ *
+ * When bootstub get control, the memory map in DRAM is like:
  *		~			~
  * 0x102000	|	initrd		| initrd will move to highest memory otherwise 
  *+bzImage size +-----------------------+ bzImage uncompressing will destory it
