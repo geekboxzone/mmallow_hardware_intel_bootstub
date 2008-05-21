@@ -20,9 +20,7 @@ head.o:head.S
 clean:
 	rm -rf *.o *.bin *.elf
 
-targz:bootstub.tar.gz
-
-bootstub.tar.gz:bootstub.c head.S
-	git-archive --prefix=bootstub/ --format=tar HEAD | gzip -c > bootstub.tar.gz
+targz:bootstub.c head.S VERSION
+	git-archive --prefix=bootstub-`head -n 1 VERSION | awk '{print $$1}'`/ --format=tar HEAD | gzip -c > bootstub-`head -n 1 VERSION | awk '{print $$1}'`.tar.gz
 
 .PHONY: all clean targz
