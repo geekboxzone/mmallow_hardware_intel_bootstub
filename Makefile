@@ -23,4 +23,9 @@ clean:
 source:bootstub.c head.S VERSION
 	git-archive --prefix=bootstub-`head -n 1 VERSION | awk '{print $$1}'`/ --format=tar HEAD | bzip2 -c > bootstub-`head -n 1 VERSION | awk '{print $$1}'`.tar.bz2
 
-.PHONY: all clean source
+rpm:source
+	cp bootstub.spec /usr/src/redhat/SPECS/
+	cp *.tar.bz2 /usr/src/redhat/SOURCES/
+	rpmbuild -ba /usr/src/redhat/SPECS/bootstub.spec
+	cp /usr/src/redhat/RPMS/i386/bootstub*.rpm ./
+.PHONY: all clean source rpm
