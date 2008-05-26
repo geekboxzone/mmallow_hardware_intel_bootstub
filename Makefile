@@ -18,7 +18,7 @@ head.o:head.S
 	gcc -c head.S
 
 clean:
-	rm -rf *.o *.bin *.elf
+	rm -rf *.o *.bin *.elf *.bz2 *.rpm
 
 source:bootstub.c head.S VERSION
 	git-archive --prefix=bootstub-`head -n 1 VERSION | awk '{print $$1}'`/ --format=tar HEAD | bzip2 -c > bootstub-`head -n 1 VERSION | awk '{print $$1}'`.tar.bz2

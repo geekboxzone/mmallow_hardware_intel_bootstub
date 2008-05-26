@@ -6,7 +6,6 @@ License: GPLv2
 Group: System Environment/Shells
 Source: %{name}-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)  
-Requires: make gcc awk dd ld bzip2
 
 %description 
 this package provides bootstub to create NAND boot image
