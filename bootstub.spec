@@ -28,6 +28,6 @@ install -m 755 bootstub $RPM_BUILD_ROOT/boot/
 /boot/bootstub
 
 %changelog
-* Mon May 5 2008 Martin Xu <martin.xu@intel.com > - 0.1-1
+* Mon May 26 2008 Alek Du <alek.du@intel.com > - 0.1-1
 - create initial package
 
