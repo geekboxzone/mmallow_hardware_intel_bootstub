@@ -1,4 +1,4 @@
-OBJ=bootstub.o head.o
+OBJ=bootstub.o spi-uart.o head.o
 
 all: bootstub
 
@@ -13,6 +13,9 @@ bootstub.elf:bootstub.lds $(OBJ)
 
 bootstub.o:bootstub.c
 	gcc -c bootstub.c
+
+spi-uart.o:spi-uart.c
+	gcc -c spi-uart.c
 
 head.o:head.S
 	gcc -c head.S
