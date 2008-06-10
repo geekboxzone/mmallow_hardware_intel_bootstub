@@ -108,12 +108,9 @@ static int get_32bit_entry(unsigned char *ptr)
 
 int bootstub(void)
 {
-	bs_spi_printk("Bootstub Version: 0.1 ...\n");
-	bs_spi_printk("Setting null idt table ...\n");
 	setup_idt();
-	bs_spi_printk("Setting gdt table ...\n");
 	setup_gdt();
-	bs_spi_printk("Setting boot_params structure ...\n");
+	bs_spi_printk("Bootstub Version: 0.1 ...\n");
 	setup_boot_params((struct boot_params *)BOOT_PARAMS_OFFSET, 
 		(struct setup_header *)SETUP_HEADER_OFFSET);
 	return get_32bit_entry((unsigned char *)BZIMAGE_OFFSET);
