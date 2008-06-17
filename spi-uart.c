@@ -52,7 +52,7 @@ static void spi_init()
 	pspi->imr &= 0xffffff00;
 	
 	/* select one slave SPI device */
-	pspi->ser = 0x1;
+	pspi->ser = 0x2;
 
 	/* enable the HW, this should be the last step for HW init */
 	pspi->ssienr |= 0x1;
