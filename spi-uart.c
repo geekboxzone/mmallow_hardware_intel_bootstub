@@ -20,7 +20,7 @@
 #include "spi-uart.h"
 
 #define MRST_SPI_TIMEOUT	0x200000
-static spi_inited = 0;
+static int spi_inited = 0;
 static struct mrst_spi_reg *pspi = 0;
 
 static void spi_init()
@@ -71,10 +71,9 @@ static void max3110_write_config(void)
 }
 
 /* transfer char to a eligibal word and send to max3110 */
-static int max3110_write_data(char c)
+static void max3110_write_data(char c)
 {
 	u16 data;
-	u8  config;
 
 	data = 0x8000 | c;
 	pspi->dr[0] = data;

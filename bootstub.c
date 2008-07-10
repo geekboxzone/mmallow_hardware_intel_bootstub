@@ -20,6 +20,9 @@
 #include "types.h"
 #include "bootstub.h"
 #include "bootparam.h"
+#include "spi-uart.h"
+
+#define bs_printk(x) { if (! *(int *)SPI_UART_SUPPRESSION) bs_spi_printk(x);}
 
 struct gdt_ptr {
         u16 len;
@@ -110,7 +113,7 @@ int bootstub(void)
 {
 	setup_idt();
 	setup_gdt();
-	bs_spi_printk("Bootstub Version: 0.1 ...\n");
+	bs_printk("Bootstub Version: 0.1 ...\n");
 	setup_boot_params((struct boot_params *)BOOT_PARAMS_OFFSET, 
 		(struct setup_header *)SETUP_HEADER_OFFSET);
 	return get_32bit_entry((unsigned char *)BZIMAGE_OFFSET);

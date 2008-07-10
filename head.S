@@ -35,10 +35,13 @@
  * 0x101000	+-----------------------+
  *		|	free space	|
  *		|	used as stack	|
+ *		+-----------------------+
+ *		|   boot stub spi uart	| MIC need to fill it:
+ *		|   suppression flag	| 0x1 suppression, 0x0 default
  * 0x100108	+-----------------------+
- *		|	initrd size	| MIC need to fill it according to bzImage size
+ *		|	initrd size	| MIC need to fill it: initrd file size
  * 0x100104	+-----------------------+
- *		|	bzImage size	| MIC need to fill it according to initrd  size
+ *		|	bzImage size	| MIC need to fill it: bzImage file size
  * 0x100100	+-----------------------+
  *		|	kernel cmdline	| MIC need to fill it
  * 0x100000	+-----------------------+
