@@ -1,3 +1,4 @@
+0.4 spi suppression flag. July 19, 2008
 0.3 spi on select 0x2. June 17, 2008
 0.2 spi support on. June 10, 2008
 0.1 Initial bootstub version for power on. May 21, 2008
