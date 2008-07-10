@@ -1,6 +1,6 @@
 Summary: this package provides bootstub binary for mrst power on
 Name: bootstub
-Version: 0.3
+Version: 0.4
 Release: 1%{?dist}
 License: GPLv2
 Group: System Environment/Shells
@@ -28,6 +28,8 @@ install -m 755 bootstub $RPM_BUILD_ROOT/boot/
 /boot/bootstub
 
 %changelog
+* Thu Jul 10 2008 Alek Du <alek.du@intel.com> - 0.4-1
+- add SPI uart suppression flag
 * Tue Jun 17 2008 Alek Du <alek.du@intel.com> - 0.3-1
 - change SPI uart slave select to 0x2 according to ESL 2008.06 version
 * Tue Jun 10 2008 Alek Du <alek.du@intel.com> - 0.2-1
