@@ -43,7 +43,7 @@ static void spi_init()
 	/* set a default baud rate, 115200 */
 	/* feng, need make sure SPIC and MAXIM3110 match */
 	//spi_enable_clk(32);
-	pspi->baudr = 32;
+	pspi->baudr = 2;
 
 	/* need set the transmit threshhol? */
 	pspi->txftlr = 0x3;
@@ -66,7 +66,7 @@ static void max3110_write_config(void)
 	u16 config;
 
 	/* 115200, TM not set, no parity, 8bit word */
-	config = 0xc000; 	
+	config = 0xc001; 	
 	pspi->dr[0] = config;
 }
 
