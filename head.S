@@ -27,24 +27,24 @@
  *
  * When bootstub get control, the memory map in DRAM is like:
  *		~			~
- * 0x102000	|	initrd		| initrd will move to highest memory otherwise 
+ * 0x1102000	|	initrd		| initrd will move to highest memory otherwise 
  *+bzImage size +-----------------------+ bzImage uncompressing will destory it
  *		|	bzImage		|
- * 0x102000	+-----------------------+
+ * 0x1102000	+-----------------------+
  *		|	boot stub	|
- * 0x101000	+-----------------------+
+ * 0x1101000	+-----------------------+
  *		|	free space	|
  *		|	used as stack	|
  *		+-----------------------+
  *		|   boot stub spi uart	| MIC need to fill it:
  *		|   suppression flag	| 0x1 suppression, 0x0 default
- * 0x100108	+-----------------------+
+ * 0x1100108	+-----------------------+
  *		|	initrd size	| MIC need to fill it: initrd file size
- * 0x100104	+-----------------------+
+ * 0x1100104	+-----------------------+
  *		|	bzImage size	| MIC need to fill it: bzImage file size
- * 0x100100	+-----------------------+
+ * 0x1100100	+-----------------------+
  *		|	kernel cmdline	| MIC need to fill it
- * 0x100000	+-----------------------+
+ * 0x1100000	+-----------------------+
 */
 
 #include "bootstub.h"

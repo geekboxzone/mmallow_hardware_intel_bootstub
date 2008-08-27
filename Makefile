@@ -11,13 +11,13 @@ bootstub.bin:bootstub.elf
 bootstub.elf:bootstub.lds $(OBJ)
 	ld -m elf_i386 -T bootstub.lds $(OBJ) -o $@
 
-bootstub.o:bootstub.c
+bootstub.o:bootstub.c bootstub.h
 	gcc -Wall -c bootstub.c
 
-spi-uart.o:spi-uart.c
+spi-uart.o:spi-uart.c spi-uart.h
 	gcc -Wall -c spi-uart.c
 
-head.o:head.S
+head.o:head.S bootstub.h
 	gcc -Wall -c head.S
 
 clean:
