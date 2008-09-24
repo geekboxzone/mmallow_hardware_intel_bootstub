@@ -1,4 +1,7 @@
 OBJ=bootstub.o spi-uart.o head.o
+CFLAGS=-ffreestanding -Wall
+#for cross compile
+#CFLAGS=-m32 -ffreestanding -Wall
 
 all: bootstub
 
@@ -12,13 +15,13 @@ bootstub.elf:bootstub.lds $(OBJ)
 	ld -m elf_i386 -T bootstub.lds $(OBJ) -o $@
 
 bootstub.o:bootstub.c bootstub.h
-	gcc -Wall -c bootstub.c
+	gcc $(CFLAGS) -c bootstub.c
 
 spi-uart.o:spi-uart.c spi-uart.h
-	gcc -Wall -c spi-uart.c
+	gcc $(CFLAGS) -c spi-uart.c
 
 head.o:head.S bootstub.h
-	gcc -Wall -c head.S
+	gcc $(CFLAGS) -c head.S
 
 clean:
 	rm -rf *.o *.bin *.elf *.bz2 *.rpm
