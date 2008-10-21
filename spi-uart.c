@@ -70,13 +70,20 @@ static void max3110_write_config(void)
 	pspi->dr[0] = config;
 }
 
+static void spi_uart_delay(volatile unsigned int loops)
+{
+	while (loops--);
+}
+
 /* transfer char to a eligibal word and send to max3110 */
 static void max3110_write_data(char c)
 {
 	u16 data;
 
+	spi_uart_delay(0x8000);
 	data = 0x8000 | c;
 	pspi->dr[0] = data;
+	spi_uart_delay(0x8000);
 }
 
 /* slave select should be called in the read/write function */
