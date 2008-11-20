@@ -46,7 +46,7 @@ static void spi_init()
 	pspi->baudr = 2;
 
 	/* need set the transmit threshhol? */
-	pspi->txftlr = 0x3;
+	/* pspi->txftlr = 0x3; */
 
 	/* disable all INT for early phase */
 	pspi->imr &= 0xffffff00;
