@@ -95,6 +95,7 @@ static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 	bp->hdr.type_of_loader = 0xff; //bootstub is unknown bootloader for kernel :)
 	bp->hdr.ramdisk_size = *(u32 *)INITRD_SIZE_OFFSET;
 	bp->hdr.ramdisk_image = (bp->alt_mem_k*1024 - bp->hdr.ramdisk_size) & 0xFFFFF000;
+	bp->hdr.hardware_subarch = X86_SUBARCH_MRST;
 	memcpy((u8*)bp->hdr.ramdisk_image, (u8 *)BZIMAGE_OFFSET + *(u32 *)BZIMAGE_SIZE_OFFSET, bp->hdr.ramdisk_size);
 }
 

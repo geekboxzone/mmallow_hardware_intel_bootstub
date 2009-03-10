@@ -271,4 +271,8 @@ struct boot_params {
 	struct edd_info eddbuf[EDDMAXNR];		/* 0xd00 */
 	__u8  _pad9[276];				/* 0xeec */
 } __attribute__((packed));
+#define X86_SUBARCH_PC			0
+#define X86_SUBARCH_LGUEST 		1
+#define X86_SUBARCH_XEN			2
+#define X86_SUBARCH_MRST		3
 
