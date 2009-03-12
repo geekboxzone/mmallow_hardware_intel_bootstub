@@ -1,6 +1,6 @@
 Summary: this package provides bootstub binary for mrst power on
 Name: bootstub
-Version: 0.4
+Version: 0.5
 Release: 1%{?dist}
 License: GPLv2
 Group: System Environment/Shells
