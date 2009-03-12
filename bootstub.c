@@ -114,7 +114,7 @@ int bootstub(void)
 {
 	setup_idt();
 	setup_gdt();
-	bs_printk("Bootstub Version: 0.2 ...\n");
+	bs_printk("Bootstub Version: 0.4 ...\n");
 	setup_boot_params((struct boot_params *)BOOT_PARAMS_OFFSET, 
 		(struct setup_header *)SETUP_HEADER_OFFSET);
 	return get_32bit_entry((unsigned char *)BZIMAGE_OFFSET);
