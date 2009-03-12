@@ -28,11 +28,13 @@ install -m 755 bootstub $RPM_BUILD_ROOT/boot/
 /boot/bootstub
 
 %changelog
-* Thu Jul 10 2008 Alek Du <alek.du@intel.com> - 0.4-1
+* Thu Mar 12 2009 Alek Du <alek.du@intel.com> - 0.5
+- add sub arch parameter
+* Thu Jul 10 2008 Alek Du <alek.du@intel.com> - 0.4
 - add SPI uart suppression flag
-* Tue Jun 17 2008 Alek Du <alek.du@intel.com> - 0.3-1
+* Tue Jun 17 2008 Alek Du <alek.du@intel.com> - 0.3
 - change SPI uart slave select to 0x2 according to ESL 2008.06 version
-* Tue Jun 10 2008 Alek Du <alek.du@intel.com> - 0.2-1
+* Tue Jun 10 2008 Alek Du <alek.du@intel.com> - 0.2
 - add SPI uart support
-* Mon May 26 2008 Alek Du <alek.du@intel.com > - 0.1-1
+* Mon May 26 2008 Alek Du <alek.du@intel.com > - 0.1
 - create initial package
