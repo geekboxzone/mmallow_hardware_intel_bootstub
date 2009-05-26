@@ -55,16 +55,30 @@ static void *memcpy(void *dest, const void *src, size_t count)
 {
         char *tmp = dest;
         const char *s = src;
+	size_t _count = count / 4;
 
+	while (_count--) {
+		*(long *)tmp = *(long *)s;
+		tmp += 4;
+		s += 4;
+	}
+	count %= 4;
         while (count--)
                 *tmp++ = *s++;
         return dest;
 }
 
-static void *memset(void *s, int c, size_t count)
+static void *memset(void *s, unsigned char c, size_t count)
 {
         char *xs = s;
+	size_t _count = count / 4;
+	unsigned long  _c = c << 24 | c << 16 | c << 8 | c;
  
+	while (_count--) {
+		*(long *)xs = _c;
+		xs += 4;
+	}
+	count %= 4;
         while (count--)
                 *xs++ = c; 
         return s;
@@ -114,8 +128,9 @@ int bootstub(void)
 {
 	setup_idt();
 	setup_gdt();
-	bs_printk("Bootstub Version: 0.5 ...\n");
+	bs_printk("Bootstub Version: 0.6 ...\n");
 	setup_boot_params((struct boot_params *)BOOT_PARAMS_OFFSET, 
 		(struct setup_header *)SETUP_HEADER_OFFSET);
+	bs_printk("Jump to kernel 32bit entry ...\n");
 	return get_32bit_entry((unsigned char *)BZIMAGE_OFFSET);
 }
