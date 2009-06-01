@@ -21,6 +21,7 @@
 #include "bootstub.h"
 #include "bootparam.h"
 #include "spi-uart.h"
+#include "sfi.h"
 
 #define bs_printk(x) { if (! *(int *)SPI_UART_SUPPRESSION) bs_spi_printk(x);}
 
@@ -95,7 +96,6 @@ static size_t strnlen(const char *s, size_t maxlen)
         return (es - s);
 }
 
-
 static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 {
 	memset(bp, 0, sizeof (struct boot_params));
@@ -111,6 +111,8 @@ static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 	bp->hdr.ramdisk_image = (bp->alt_mem_k*1024 - bp->hdr.ramdisk_size) & 0xFFFFF000;
 	bp->hdr.hardware_subarch = X86_SUBARCH_MRST;
 	memcpy((u8*)bp->hdr.ramdisk_image, (u8 *)BZIMAGE_OFFSET + *(u32 *)BZIMAGE_SIZE_OFFSET, bp->hdr.ramdisk_size);
+
+	sfi_setup_e820(bp);
 }
 
 static int get_32bit_entry(unsigned char *ptr)

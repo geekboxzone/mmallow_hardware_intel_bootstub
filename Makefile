@@ -1,4 +1,4 @@
-OBJ=bootstub.o spi-uart.o head.o
+OBJ=bootstub.o spi-uart.o head.o sfi.o
 CFLAGS=-ffreestanding -Wall
 #for cross compile
 #CFLAGS=-m32 -ffreestanding -Wall
@@ -19,6 +19,9 @@ bootstub.o:bootstub.c bootstub.h
 
 spi-uart.o:spi-uart.c spi-uart.h
 	gcc $(CFLAGS) -c spi-uart.c
+
+sfi.o:sfi.c
+	gcc $(CFLAGS) -c sfi.c
 
 head.o:head.S bootstub.h
 	gcc $(CFLAGS) -c head.S
