@@ -28,6 +28,9 @@ install -m 755 bootstub $RPM_BUILD_ROOT/boot/
 /boot/bootstub
 
 %changelog
+* Thu Jun 04 2008 Alek Du <alek.du@intel.com> - 0.7
+- build e820 table (by Feng.Tang@intel.com)
+- add SPI controller selection flag
 * Tue May 12 2009 Alek Du <alek.du@intel.com> - 0.6
 - improved initrd relocation performance
 - improved spi uart output performance

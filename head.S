@@ -35,7 +35,10 @@
  * 0x1101000	+-----------------------+
  *		|	free space	|
  *		|	used as stack	|
- *		+-----------------------+
+ * 0x1100110	+-----------------------+
+ *		|	SPI0 or SPI1	| MIC need to fill it:
+ *		|			| 0x0: SPI0, 0x1: SPI1
+ * 0x110010c	+-----------------------+
  *		|   boot stub spi uart	| MIC need to fill it:
  *		|   suppression flag	| 0x1 suppression, 0x0 default
  * 0x1100108	+-----------------------+

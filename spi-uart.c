@@ -18,17 +18,26 @@
  */
 
 #include "spi-uart.h"
+#include "bootstub.h"
 
 #define MRST_SPI_TIMEOUT	0x200000
 static int spi_inited = 0;
-static struct mrst_spi_reg *pspi = 0;
+static volatile struct mrst_spi_reg *pspi = 0;
 
 static void spi_init()
 {
 	u32 ctrlr0;
 
-	pspi = (struct mrst_spi_reg *)MRST_REGBASE_SPI0;
-
+	switch (*(int *)SPI_TYPE) {
+	case 0:
+		pspi = (struct mrst_spi_reg *)MRST_REGBASE_SPI0;
+		break;
+	case 1:
+		pspi = (struct mrst_spi_reg *)MRST_REGBASE_SPI1;
+		break;
+	default:
+		pspi = (struct mrst_spi_reg *)MRST_REGBASE_SPI0;
+	}
 	/* disable SPI controller first */
 	pspi->ssienr = 0x0;
 
@@ -84,26 +93,12 @@ static int spi_max3110_putc(char c)
 {
 	unsigned int timeout;
 	u32 sr;
-	u32 test;
-
-	/* read RX FIFO out if there is any */
-	while ((pspi->sr & SR_RF_NOT_EMPT) && pspi->rxflr ) {
-		timeout = MRST_SPI_TIMEOUT;
-		while (timeout--) {
-			 if (!(pspi->sr & SR_BUSY))
-				break;
-		}
-
-		if (timeout == 0xffffffff)
-			return -1;
-		test = pspi->dr[0];
-	}
 
 	timeout = MRST_SPI_TIMEOUT;
 	/* early putc need make sure the TX FIFO is not full*/
 	while (timeout--) {
 		sr = pspi->sr;
-		if ( (sr & SR_BUSY) || !(sr & SR_TF_NOT_FULL))
+		if (!(sr & SR_TF_NOT_FULL))
 			continue;
 		else
 			break;
@@ -117,20 +112,15 @@ static int spi_max3110_putc(char c)
 	return 0;
 }
 
-
 void bs_spi_printk(const char *str)
 {
-	if (!spi_inited)
+	if (!spi_inited) {
 		spi_init();
+		max3110_write_config();
+	}
 
 	if (!str)
 		return;
-
-	/* 
-	 * here we assume only 1 write_config is enough,
-	 * if not will call it for each putc 
-	 */
-	max3110_write_config();
 
 	while (*str) {
 		if (*str == '\n')
