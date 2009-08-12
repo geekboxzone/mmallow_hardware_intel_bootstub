@@ -52,7 +52,8 @@ static void spi_init()
 	/* set a default baud rate, 115200 */
 	/* feng, need make sure SPIC and MAXIM3110 match */
 	//spi_enable_clk(32);
-	pspi->baudr = 0xd8;
+	/* 100MHz SPI clock / 115200 BAUD rate */
+	pspi->baudr = 0x364;
 
 	/* need set the transmit threshhol? */
 	/* pspi->txftlr = 0x3; */
