@@ -12,6 +12,19 @@ typedef volatile unsigned int	vu32;
 #define MRST_REGBASE_SPI1	0xff128400
 #define MRST_REGBASE_SPI2	0xff128800
 
+/* HW info for MRST CLk Control Unit, one 32b reg */
+#define MRST_SPI_CLK_BASE	100000000	/* 100m */
+#define MRST_CLK_SPI0_REG	0xff11d86c
+#define CLK_SPI_BDIV_OFFSET	0
+#define CLK_SPI_BDIV_MASK	0x00000007
+#define CLK_SPI_CDIV_OFFSET	9
+#define CLK_SPI_CDIV_MASK	0x00000e00
+#define CLK_SPI_CDIV_100M	0x0
+#define CLK_SPI_CDIV_50M	0x1
+#define CLK_SPI_CDIV_33M	0x2
+#define CLK_SPI_CDIV_25M	0x3
+#define CLK_SPI_DISABLE_OFFSET	8
+
 struct mrst_spi_reg {
 	vu32 ctrlr0;	/* control reg 0 */
 	vu32 ctrlr1;	/* control reg 1 */
