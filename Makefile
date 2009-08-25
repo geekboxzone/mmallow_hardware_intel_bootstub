@@ -30,7 +30,7 @@ clean:
 	rm -rf *.o *.bin *.elf *.bz2 *.rpm
 
 source:bootstub.c head.S VERSION
-	git-archive --prefix=bootstub-`head -n 1 VERSION | awk '{print $$1}'`/ --format=tar HEAD | bzip2 -c > bootstub-`head -n 1 VERSION | awk '{print $$1}'`.tar.bz2
+	git archive --prefix=bootstub-`head -n 1 VERSION | awk '{print $$1}'`/ --format=tar HEAD | bzip2 -c > bootstub-`head -n 1 VERSION | awk '{print $$1}'`.tar.bz2
 
 rpm:source
 	cp bootstub.spec /usr/src/redhat/SPECS/
