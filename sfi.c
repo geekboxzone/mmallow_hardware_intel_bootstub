@@ -56,7 +56,6 @@ void sfi_setup_e820(struct boot_params *bp)
 		case SFI_MEM_CONV:
 			type = E820_RAM;
 			break;
-		case SFI_MEM_MMIO:
 		case SFI_MEM_UNUSABLE:
 		case SFI_RUNTIME_SERVICE_DATA:
 			mentry++;
