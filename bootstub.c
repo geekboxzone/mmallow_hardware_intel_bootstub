@@ -98,6 +98,8 @@ static size_t strnlen(const char *s, size_t maxlen)
 
 static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 {
+	u8 *initramfs;
+
 	memset(bp, 0, sizeof (struct boot_params));
 	bp->screen_info.orig_video_mode = 0;
 	bp->screen_info.orig_video_lines = 0;
@@ -110,8 +112,13 @@ static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 	bp->hdr.ramdisk_size = *(u32 *)INITRD_SIZE_OFFSET;
 	bp->hdr.ramdisk_image = (bp->alt_mem_k*1024 - bp->hdr.ramdisk_size) & 0xFFFFF000;
 	bp->hdr.hardware_subarch = X86_SUBARCH_MRST;
-	memcpy((u8*)bp->hdr.ramdisk_image, (u8 *)BZIMAGE_OFFSET + *(u32 *)BZIMAGE_SIZE_OFFSET, bp->hdr.ramdisk_size);
-
+	initramfs = (u8 *)BZIMAGE_OFFSET + *(u32 *)BZIMAGE_SIZE_OFFSET;
+	if (*initramfs) {
+		bs_printk("Relocating initramfs to high memory ...\n");
+		memcpy((u8*)bp->hdr.ramdisk_image, initramfs, bp->hdr.ramdisk_size);
+	} else {
+		bs_printk("Won't relocate initramfs, are you in SLE?\n");
+	}
 	sfi_setup_e820(bp);
 }
 
