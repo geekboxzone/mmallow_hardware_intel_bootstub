@@ -133,10 +133,53 @@ static int get_32bit_entry(unsigned char *ptr)
 	return (((unsigned int)ptr+511)/512)*512;
 }
 
+static inline void cpuid(u32 op, u32 *eax, u32 *ebx, u32 *ecx, u32 *edx)
+{
+	*eax = op;
+	*ecx = 0;
+	asm volatile("cpuid"
+		: "=a" (*eax),
+		"=b" (*ebx),
+		"=c" (*ecx),
+		"=d" (*edx)
+		: "0" (*eax), "2" (*ecx));
+}
+
+enum cpuid_regs {
+	CR_EAX = 0,
+	CR_ECX,
+	CR_EDX,
+	CR_EBX
+};
+
+#define PENWELL_FAMILY	0x20670
+#define MRST_CPU_CHIP_LINCROFT  1
+#define MRST_CPU_CHIP_PENWELL   2
+
+static int mrst_identify_cpu(void)
+{
+	u32 regs[4];
+
+	cpuid(1, &regs[CR_EAX], &regs[CR_EBX], &regs[CR_ECX], &regs[CR_EDX]);
+	if ((regs[CR_EAX] & PENWELL_FAMILY) == PENWELL_FAMILY)
+		return MRST_CPU_CHIP_PENWELL;
+	return MRST_CPU_CHIP_LINCROFT;
+}
+
+static void setup_spi(void)
+{
+	if (! *(int *)SPI_TYPE)
+		if (mrst_identify_cpu() == MRST_CPU_CHIP_PENWELL) {
+			*(int *)SPI_TYPE = 1;
+			bs_printk("Penwell detected ...\n");
+		}
+}
+
 int bootstub(void)
 {
 	setup_idt();
 	setup_gdt();
+	setup_spi();
 	bs_printk("Bootstub Version: 0.8 ...\n");
 	setup_boot_params((struct boot_params *)BOOT_PARAMS_OFFSET, 
 		(struct setup_header *)SETUP_HEADER_OFFSET);
