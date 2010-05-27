@@ -51,15 +51,10 @@ static void spi_init()
 	pspi->ctrlr0 = ctrlr0;
 	
 	/* set a default baud rate, 115200 */
-	/* feng, need make sure SPIC and MAXIM3110 match */
-	//spi_enable_clk(32);
 	/* get SPI controller operating freq info */
 	clk_reg = (u32 *)MRST_CLK_SPI0_REG;
 	clk_cdiv  = ((*clk_reg) & CLK_SPI_CDIV_MASK) >> CLK_SPI_CDIV_OFFSET;
 	pspi->baudr = MRST_SPI_CLK_BASE / (clk_cdiv + 1) / 115200;
-
-	/* need set the transmit threshhol? */
-	/* pspi->txftlr = 0x3; */
 
 	/* disable all INT for early phase */
 	pspi->imr &= 0xffffff00;
