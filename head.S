@@ -1,6 +1,8 @@
 /*
  * head.S for bootstub to load protected mode kernel
- * Copyright (C) 2008, Alek Du <alek.du@intel.com> Intel Corporation.
+ *
+ * Copyright (C) 2008-2010 Intel Corporation.
+ * Author: Alek Du <alek.du@intel.com>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
