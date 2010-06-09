@@ -1,6 +1,6 @@
-Summary: this package provides bootstub binary for mrst power on
+Summary: this package provides bootstub binary for mrst/mfld platform
 Name: bootstub
-Version: 0.8
+Version: 0.9
 Release: 1%{?dist}
 License: GPLv2
 Group: System Environment/Shells
@@ -28,6 +28,8 @@ install -m 755 bootstub $RPM_BUILD_ROOT/boot/
 /boot/bootstub
 
 %changelog
+* Wed Jun 09 2010 Alek Du <alek.du@intel.com> - 0.9
+- Support medfield platform
 * Tue Aug 25 2009 Feng Tang <feng.tang@intel.com> - 0.8
 - Fix SFI mmio exporting
 - changed default spi clock to 100mhz
