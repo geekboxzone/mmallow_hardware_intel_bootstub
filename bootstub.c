@@ -182,7 +182,7 @@ int bootstub(void)
 	setup_idt();
 	setup_gdt();
 	setup_spi();
-	bs_printk("Bootstub Version: 0.9 ...\n");
+	bs_printk("Bootstub Version: 1.0 ...\n");
 	setup_boot_params((struct boot_params *)BOOT_PARAMS_OFFSET, 
 		(struct setup_header *)SETUP_HEADER_OFFSET);
 	bs_printk("Jump to kernel 32bit entry ...\n");

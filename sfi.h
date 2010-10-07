@@ -26,7 +26,7 @@ struct sfi_mem_entry {
 	u64 vir_start;
 	u64 pages;
 	u64 attrib;
-};
+}__attribute__((packed));
 
 struct sfi_table_header {
 	char signature[4];
@@ -35,12 +35,12 @@ struct sfi_table_header {
 	u8 checksum;
 	char oem_id[6];
 	char oem_table_id[8];
-};
+}__attribute__((packed));
 
 struct sfi_table {
 	struct sfi_table_header header;
 	u64 pentry[1];
-};
+}__attribute__((packed));
 
 #define SFI_TBL_HEADER_LEN      24
 

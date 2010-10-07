@@ -33,7 +33,7 @@ static unsigned long sfi_search_mmap(unsigned long start, int len)
 	unsigned long i = 0;
 	char *pchar = (char *)start;
 
-	for (i = 0; i < len; i += 4, pchar += 4) {
+	for (i = 0; i < len; i++, pchar++) {
 		if (pchar[0] == 'M'
 			&& pchar[1] == 'M'
 			&& pchar[2] == 'A'
@@ -55,9 +55,10 @@ void sfi_setup_e820(struct boot_params *bp)
 
 	/* search for sfi mmap table */
 	sb = (struct sfi_table *)sfi_search_mmap(SFI_BASE_ADDR, SFI_LENGTH);
-	if (!sb)
+	if (!sb) {
+		bs_printk("Bootstub: failed to locate SFI MMAP table\n");
 		return;
-
+	}
 	bs_printk("Bootstub: will use sfi mmap table for e820 table\n");
 	num = SFI_GET_ENTRY_NUM(sb, sfi_mem_entry);
 	mentry = (struct sfi_mem_entry *)sb->pentry;
