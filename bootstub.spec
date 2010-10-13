@@ -1,6 +1,6 @@
 Summary: this package provides bootstub binary for mrst/mfld platform
 Name: bootstub
-Version: 0.9
+Version: 1.0
 Release: 1%{?dist}
 License: GPLv2
 Group: System Environment/Shells
