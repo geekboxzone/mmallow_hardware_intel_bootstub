@@ -1,7 +1,5 @@
 OBJ=bootstub.o spi-uart.o head.o sfi.o
-CFLAGS=-ffreestanding -Wall
-#for cross compile
-#CFLAGS=-m32 -ffreestanding -Wall
+CFLAGS=-m32 -ffreestanding -Wall
 
 all: bootstub
 
