@@ -25,19 +25,67 @@
 
 #define SFI_BASE_ADDR		0x000E0000
 #define SFI_LENGTH		0x00020000
+#define SFI_TABLE_LENGTH	16
 
-static unsigned long sfi_search_mmap(unsigned long start, int len)
+static int sfi_table_check(struct sfi_table_header *sbh)
 {
-	unsigned long i = 0;
-	char *pchar = (char *)start;
+	char chksum = 0;
+	char *pos = (char *)sbh;
+	int i;
 
-	for (i = 0; i < len; i++, pchar++) {
-		if (pchar[0] == 'M'
-			&& pchar[1] == 'M'
-			&& pchar[2] == 'A'
-			&& pchar[3] == 'P')
-			return start + i;
+	if (sbh->length < SFI_TABLE_LENGTH)
+		return -1;
+
+	if (sbh->length > SFI_LENGTH)
+		return -1;
+
+	for (i = 0; i < sbh->length; i++)
+		chksum += *pos++;
+
+	if (chksum)
+		bs_printk("sfi: Invalid checksum\n");
+
+	/* checksum is ok if zero */
+	return chksum;
+}
+
+static unsigned long sfi_search_mmap(void)
+{
+	u32 i = 0;
+	u32 *pos = (u32 *)SFI_BASE_ADDR;
+	u32 *end = (u32 *)(SFI_BASE_ADDR + SFI_LENGTH);
+	struct sfi_table_header *sbh;
+	struct sfi_table *sb;
+	u32 sys_entry_cnt = 0;
+
+	/* Find SYST table */
+	for (; pos < end; pos += 4) {
+		if (*pos == SFI_SYST_MAGIC) {
+			if (!sfi_table_check((struct sfi_table_header *)pos))
+				break;
+		}
 	}
+
+	if (pos >= end) {
+		bs_printk("Bootstub: failed to locate SFI SYST table\n");
+		return 0;
+	}
+
+	/* map table pointers */
+	sb = (struct sfi_table *)pos;
+	sbh = (struct sfi_table_header *)sb;
+
+	sys_entry_cnt = (sbh->length - sizeof(struct sfi_table_header)) >> 3;
+
+	/* Search through each SYST entry for MMAP table */
+	for (i = 0; i < sys_entry_cnt; i++) {
+		sbh = (struct sfi_table_header *)sb->entry[i].low;
+		if (*(u32 *)sbh->signature == SFI_MMAP_MAGIC) {
+			if (!sfi_table_check((struct sfi_table_header *)sbh))
+				return (unsigned long) sbh;
+		}
+	}
+
 	return 0;
 }
 
@@ -52,7 +100,7 @@ void sfi_setup_e820(struct boot_params *bp)
 	total = 0;
 
 	/* search for sfi mmap table */
-	sb = (struct sfi_table *)sfi_search_mmap(SFI_BASE_ADDR, SFI_LENGTH);
+	sb = (struct sfi_table *)sfi_search_mmap();
 	if (!sb) {
 		bs_printk("Bootstub: failed to locate SFI MMAP table\n");
 		return;

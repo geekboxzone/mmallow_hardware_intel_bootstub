@@ -37,9 +37,17 @@ struct sfi_table_header {
 	char oem_table_id[8];
 }__attribute__((packed));
 
+struct __sfi_quad_word {
+	u32 low;
+	u32 high;
+};
+
 struct sfi_table {
 	struct sfi_table_header header;
-	u64 pentry[1];
+	union {
+		u64 pentry[1];
+		struct __sfi_quad_word entry[1];
+	};
 }__attribute__((packed));
 
 #define SFI_TBL_HEADER_LEN      24
@@ -53,6 +61,9 @@ struct sfi_table {
 #define E820_ACPI	3
 #define E820_NVS	4
 #define E820_UNUSABLE	5
+
+#define SFI_SYST_MAGIC	0x54535953 /* SYST */
+#define SFI_MMAP_MAGIC	0x50414d4d /* MMAP */
 
 extern void sfi_setup_e820(struct boot_params *bp);
 #endif /* _SFI_H */
