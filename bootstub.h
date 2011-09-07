@@ -8,11 +8,15 @@
 #define PENWELL_FAMILY		0x20670
 #define CLOVERVIEW_FAMILY	0x30650
 #define VALLEYVIEW2_FAMILY	0x30670
+#define TANGIER_FAMILY		0x406A0
+#define ANNIEDALE_FAMILY	0x506A0
 
 #define MID_CPU_CHIP_LINCROFT	1
 #define MID_CPU_CHIP_PENWELL	2
 #define MID_CPU_CHIP_CLOVERVIEW 3
 #define MID_CPU_CHIP_VALLEYVIEW2 4
+#define MID_CPU_CHIP_TANGIER	5
+#define MID_CPU_CHIP_ANNIEDALE	6
 #define MID_CPU_CHIP_OTHER		0xFF
 
 #define CMDLINE_OFFSET		0x1100000
@@ -22,6 +26,7 @@
 #define SPI_TYPE		(SPI_UART_SUPPRESSION + 4) /*0:SPI0  1:SPI1*/
 #define SPI_0		0
 #define SPI_1		1
+#define SPI_2		2
 
 #define STACK_OFFSET		0x1101000
 #define BZIMAGE_OFFSET		0x1102000
@@ -53,6 +58,7 @@
          ((u64)(limit & 0x0000ffff)))
 int get_e820_by_bios(void *e820_buf);
 int mid_identify_cpu(void);
+void bs_printk(const char *str);
 #endif
 
 #endif

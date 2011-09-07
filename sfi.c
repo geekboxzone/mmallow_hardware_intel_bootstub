@@ -23,8 +23,6 @@
 #include "spi-uart.h"
 #include "sfi.h"
 
-#define bs_printk(x) { if (!*(int *)SPI_UART_SUPPRESSION) bs_spi_printk(x); }
-
 #define SFI_BASE_ADDR		0x000E0000
 #define SFI_LENGTH		0x00020000
 

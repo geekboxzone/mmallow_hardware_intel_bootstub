@@ -5,9 +5,6 @@
 
 #include "types.h"
 
-typedef volatile unsigned short vu16;
-typedef volatile unsigned int	vu32;
-
 #define MRST_REGBASE_SPI0	0xff128000
 #define MRST_REGBASE_SPI1	0xff128400
 #define MRST_REGBASE_SPI2	0xff128800

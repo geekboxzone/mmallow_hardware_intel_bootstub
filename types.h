@@ -17,4 +17,7 @@ typedef __u64 u64;
 
 typedef unsigned int size_t;
 
+typedef volatile unsigned short vu16;
+typedef volatile unsigned int	vu32;
+
 #endif

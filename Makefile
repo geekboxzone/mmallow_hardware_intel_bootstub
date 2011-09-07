@@ -1,4 +1,4 @@
-OBJ=bootstub.o spi-uart.o head.o sfi.o e820_bios.o
+OBJ=bootstub.o spi-uart.o head.o sfi.o e820_bios.o ssp-uart.o
 CMDLINE_SIZE ?= 0x400
 CFLAGS=-m32 -ffreestanding -Wall -DCMDLINE_SIZE=${CMDLINE_SIZE}
 CC ?= gcc
@@ -19,6 +19,9 @@ bootstub.o:bootstub.c bootstub.h
 
 spi-uart.o:spi-uart.c spi-uart.h
 	${CC} $(CFLAGS) -c spi-uart.c
+
+ssp-uart.o:ssp-uart.c ssp-uart.h
+	${CC} $(CFLAGS) -c ssp-uart.c
 
 sfi.o:sfi.c
 	${CC} $(CFLAGS) -c sfi.c

@@ -23,9 +23,8 @@
 #include "bootstub.h"
 #include "bootparam.h"
 #include "spi-uart.h"
+#include "ssp-uart.h"
 #include "sfi.h"
-
-#define bs_printk(x) { if (! *(int *)SPI_UART_SUPPRESSION) bs_spi_printk(x);}
 
 extern int no_uart_used;
 
@@ -149,6 +148,10 @@ int mid_identify_cpu(void)
 		return MID_CPU_CHIP_CLOVERVIEW;
 	case VALLEYVIEW2_FAMILY:
 		return MID_CPU_CHIP_VALLEYVIEW2;
+	case TANGIER_FAMILY:
+		return MID_CPU_CHIP_TANGIER;
+	case ANNIEDALE_FAMILY:
+		return MID_CPU_CHIP_ANNIEDALE;
 	default:
 		return MID_CPU_CHIP_OTHER;
 	}
@@ -169,6 +172,16 @@ static void setup_spi(void)
 			bs_printk("CLV detected\n");
 			break;
 
+		case MID_CPU_CHIP_TANGIER:
+			*(int *)SPI_TYPE = SPI_2;
+			bs_printk("MRD detected\n");
+			break;
+
+		case MID_CPU_CHIP_ANNIEDALE:
+			*(int *)SPI_TYPE = SPI_2;
+			bs_printk("ANN detected\n");
+			break;
+
 		case MID_CPU_CHIP_VALLEYVIEW2:
 		case MID_CPU_CHIP_OTHER:
 		default:
@@ -185,4 +198,21 @@ int bootstub(void)
 		(struct setup_header *)SETUP_HEADER_OFFSET);
 	bs_printk("Jump to kernel 32bit entry ...\n");
 	return get_32bit_entry((unsigned char *)BZIMAGE_OFFSET);
+}
+
+void bs_printk(const char *str)
+{
+	if (*(int *)SPI_UART_SUPPRESSION)
+		return;
+
+	switch (*(int *)SPI_TYPE) {
+
+	case SPI_1:
+                bs_spi_printk(str);
+                break;
+
+        case SPI_2:
+                bs_ssp_printk(str);
+                break;
+	}
 }
