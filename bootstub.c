@@ -154,27 +154,32 @@ enum cpuid_regs {
 	CR_EBX
 };
 
-#define PENWELL_FAMILY	0x20670
-#define MRST_CPU_CHIP_LINCROFT  1
-#define MRST_CPU_CHIP_PENWELL   2
-
-static int mrst_identify_cpu(void)
+int mrst_identify_cpu(void)
 {
 	u32 regs[4];
 
 	cpuid(1, &regs[CR_EAX], &regs[CR_EBX], &regs[CR_ECX], &regs[CR_EDX]);
 	if ((regs[CR_EAX] & PENWELL_FAMILY) == PENWELL_FAMILY)
 		return MRST_CPU_CHIP_PENWELL;
+	else if ((regs[CR_EAX] & CLOVERVIEW_FAMILY) == CLOVERVIEW_FAMILY)
+		return MRST_CPU_CHIP_CLOVERVIEW;
 	return MRST_CPU_CHIP_LINCROFT;
 }
 
 static void setup_spi(void)
 {
-	if (! *(int *)SPI_TYPE)
+	if (!(*(int *)SPI_TYPE)) {
 		if (mrst_identify_cpu() == MRST_CPU_CHIP_PENWELL) {
 			*(int *)SPI_TYPE = 1;
 			bs_printk("Penwell detected ...\n");
+		} else if (mrst_identify_cpu() == MRST_CPU_CHIP_CLOVERVIEW) {
+			*(int *)SPI_TYPE = 1;
+			bs_printk("Cloverview detected ...\n");
+		} else {
+			*(int *)SPI_TYPE = 1;
+			bs_printk("Lincroft detected ...\n");
 		}
+	}
 }
 
 int bootstub(void)
@@ -182,7 +187,7 @@ int bootstub(void)
 	setup_idt();
 	setup_gdt();
 	setup_spi();
-	bs_printk("Bootstub Version: 1.0 ...\n");
+	bs_printk("Bootstub Version: 1.1 ...\n");
 	setup_boot_params((struct boot_params *)BOOT_PARAMS_OFFSET, 
 		(struct setup_header *)SETUP_HEADER_OFFSET);
 	bs_printk("Jump to kernel 32bit entry ...\n");

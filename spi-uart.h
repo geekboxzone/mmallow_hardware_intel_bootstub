@@ -12,6 +12,10 @@ typedef volatile unsigned int	vu32;
 #define MRST_REGBASE_SPI1	0xff128400
 #define MRST_REGBASE_SPI2	0xff128800
 
+#define CTP_REGBASE_SPI0	0xff128000
+#define CTP_REGBASE_SPI1	0xff135000
+#define CTP_REGBASE_SPI2	0xff136000
+
 /* HW info for MRST CLk Control Unit, one 32b reg */
 #define MRST_SPI_CLK_BASE	100000000	/* 100m */
 #define MRST_CLK_SPI0_REG	0xff11d86c

@@ -31,13 +31,22 @@ static void spi_init()
 
 	switch (*(int *)SPI_TYPE) {
 	case 0:
-		pspi = (struct mrst_spi_reg *)MRST_REGBASE_SPI0;
+		if (mrst_identify_cpu() == MRST_CPU_CHIP_CLOVERVIEW)
+			pspi = (struct mrst_spi_reg *)CTP_REGBASE_SPI0;
+		else
+			pspi = (struct mrst_spi_reg *)MRST_REGBASE_SPI0;
 		break;
 	case 1:
-		pspi = (struct mrst_spi_reg *)MRST_REGBASE_SPI1;
+		if (mrst_identify_cpu() == MRST_CPU_CHIP_CLOVERVIEW)
+			pspi = (struct mrst_spi_reg *)CTP_REGBASE_SPI1;
+		else
+			pspi = (struct mrst_spi_reg *)MRST_REGBASE_SPI1;
 		break;
 	default:
-		pspi = (struct mrst_spi_reg *)MRST_REGBASE_SPI0;
+		if (mrst_identify_cpu() == MRST_CPU_CHIP_CLOVERVIEW)
+			pspi = (struct mrst_spi_reg *)CTP_REGBASE_SPI0;
+		else
+			pspi = (struct mrst_spi_reg *)MRST_REGBASE_SPI0;
 	}
 	/* disable SPI controller first */
 	pspi->ssienr = 0x0;
