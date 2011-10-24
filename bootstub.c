@@ -109,7 +109,7 @@ static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 	bp->alt_mem_k = 128*1024; // hard coded 128M mem here, since SFI will override it
 	memcpy(&bp->hdr, sh, sizeof (struct setup_header));
 	bp->hdr.cmd_line_ptr = CMDLINE_OFFSET;
-	bp->hdr.cmdline_size = strnlen((const char *)CMDLINE_OFFSET,256);
+	bp->hdr.cmdline_size = strnlen((const char *)CMDLINE_OFFSET, CMDLINE_SIZE);
 	bp->hdr.type_of_loader = 0xff; //bootstub is unknown bootloader for kernel :)
 	bp->hdr.ramdisk_size = *(u32 *)INITRD_SIZE_OFFSET;
 	bp->hdr.ramdisk_image = (bp->alt_mem_k*1024 - bp->hdr.ramdisk_size) & 0xFFFFF000;
@@ -187,7 +187,7 @@ int bootstub(void)
 	setup_idt();
 	setup_gdt();
 	setup_spi();
-	bs_printk("Bootstub Version: 1.1 ...\n");
+	bs_printk("Bootstub Version: 1.2 ...\n");
 	setup_boot_params((struct boot_params *)BOOT_PARAMS_OFFSET, 
 		(struct setup_header *)SETUP_HEADER_OFFSET);
 	bs_printk("Jump to kernel 32bit entry ...\n");

@@ -1,5 +1,7 @@
 OBJ=bootstub.o spi-uart.o head.o sfi.o
-CFLAGS=-m32 -ffreestanding -Wall
+CMDLINE_SIZE ?= 0x400
+CFLAGS=-m32 -ffreestanding -Wall -DCMDLINE_SIZE=${CMDLINE_SIZE}
+CC ?= gcc
 
 all: bootstub
 
@@ -13,16 +15,16 @@ bootstub.elf:bootstub.lds $(OBJ)
 	ld -m elf_i386 -T bootstub.lds $(OBJ) -o $@
 
 bootstub.o:bootstub.c bootstub.h
-	gcc $(CFLAGS) -c bootstub.c
+	${CC} $(CFLAGS) -c bootstub.c
 
 spi-uart.o:spi-uart.c spi-uart.h
-	gcc $(CFLAGS) -c spi-uart.c
+	${CC} $(CFLAGS) -c spi-uart.c
 
 sfi.o:sfi.c
-	gcc $(CFLAGS) -c sfi.c
+	${CC} $(CFLAGS) -c sfi.c
 
 head.o:head.S bootstub.h
-	gcc $(CFLAGS) -c head.S
+	${CC} $(CFLAGS) -c head.S
 
 clean:
 	rm -rf *.o *.bin *.elf *.bz2 *.rpm

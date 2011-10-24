@@ -1,3 +1,4 @@
+1.2 add support to "large" kernel command line. Oct 20, 2011
 1.1 add cloverview support. Oct 6, 2011
 1.0 fix alignment issue in SFI mmap searching. Oct 13, 2010
 0.9 support medfield. Jun 9, 2010
