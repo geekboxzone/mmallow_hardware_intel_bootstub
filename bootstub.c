@@ -159,10 +159,13 @@ int mrst_identify_cpu(void)
 	u32 regs[4];
 
 	cpuid(1, &regs[CR_EAX], &regs[CR_EBX], &regs[CR_ECX], &regs[CR_EDX]);
-	if ((regs[CR_EAX] & PENWELL_FAMILY) == PENWELL_FAMILY)
+
+	if ((regs[CR_EAX] & CPUID_MASK) == PENWELL_FAMILY)
 		return MRST_CPU_CHIP_PENWELL;
-	else if ((regs[CR_EAX] & CLOVERVIEW_FAMILY) == CLOVERVIEW_FAMILY)
+	else if ((regs[CR_EAX] & CPUID_MASK) == CLOVERVIEW_FAMILY)
 		return MRST_CPU_CHIP_CLOVERVIEW;
+	else if ((regs[CR_EAX] & CPUID_MASK) == VALLEYVIEW2_FAMILY)
+		return MRST_CPU_CHIP_VALLEYVIEW2;
 	return MRST_CPU_CHIP_LINCROFT;
 }
 
