@@ -1,4 +1,4 @@
-OBJ=bootstub.o spi-uart.o head.o sfi.o
+OBJ=bootstub.o spi-uart.o head.o sfi.o e820_bios.o
 CMDLINE_SIZE ?= 0x400
 CFLAGS=-m32 -ffreestanding -Wall -DCMDLINE_SIZE=${CMDLINE_SIZE}
 CC ?= gcc
@@ -24,7 +24,10 @@ sfi.o:sfi.c
 	${CC} $(CFLAGS) -c sfi.c
 
 head.o:head.S bootstub.h
-	${CC} $(CFLAGS) -c head.S
+	${CC} $(CFLAGS) -D__ASSEMBLY__ -c head.S
+
+e820_bios.o:e820_bios.S bootstub.h
+	${CC} $(CFLAGS) -D__ASSEMBLY__ -c e820_bios.S
 
 clean:
 	rm -rf *.o *.bin *.elf *.bz2 *.rpm

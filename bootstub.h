@@ -33,11 +33,22 @@
 #define GDT_ENTRY_BOOT_DS       (GDT_ENTRY_BOOT_CS + 1)
 #define __BOOT_DS               (GDT_ENTRY_BOOT_DS * 8)
 
+#ifdef __ASSEMBLY__
+#define GDT_ENTRY(flags, base, limit)			\
+	((((base)  & 0xff000000) << (56-24)) |	\
+	 (((flags) & 0x0000f0ff) << 40) |	\
+	 (((limit) & 0x000f0000) << (48-16)) |	\
+	 (((base)  & 0x00ffffff) << 16) |	\
+	 (((limit) & 0x0000ffff)))
+#else
 #define GDT_ENTRY(flags, base, limit)           \
         (((u64)(base & 0xff000000) << 32) |     \
          ((u64)flags << 40) |                   \
          ((u64)(limit & 0x00ff0000) << 32) |    \
          ((u64)(base & 0x00ffffff) << 16) |     \
          ((u64)(limit & 0x0000ffff)))
+int get_e820_by_bios(void *e820_buf);
+int mrst_identify_cpu(void);
+#endif
 
 #endif

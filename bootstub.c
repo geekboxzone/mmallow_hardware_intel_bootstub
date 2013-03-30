@@ -27,33 +27,6 @@
 
 #define bs_printk(x) { if (! *(int *)SPI_UART_SUPPRESSION) bs_spi_printk(x);}
 
-struct gdt_ptr {
-        u16 len;
-        u32 ptr;
-} __attribute__((packed));
-
-static void setup_gdt(void)
-{
-        static const u64 boot_gdt[] __attribute__((aligned(16))) = {
-                /* CS: code, read/execute, 4 GB, base 0 */
-                [GDT_ENTRY_BOOT_CS] = GDT_ENTRY(0xc09b, 0, 0xfffff),
-                /* DS: data, read/write, 4 GB, base 0 */
-                [GDT_ENTRY_BOOT_DS] = GDT_ENTRY(0xc093, 0, 0xfffff),
-        };
-        static struct gdt_ptr gdt;
-
-        gdt.len = sizeof(boot_gdt)-1;
-        gdt.ptr = (u32)&boot_gdt;
-
-        asm volatile("lgdtl %0" : : "m" (gdt));
-}
-
-static void setup_idt(void)
-{
-        static const struct gdt_ptr null_idt = {0, 0};
-        asm volatile("lidtl %0" : : "m" (null_idt));
-}
-
 static void *memcpy(void *dest, const void *src, size_t count)
 {
         char *tmp = dest;
@@ -101,6 +74,7 @@ static size_t strnlen(const char *s, size_t maxlen)
 static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 {
 	u8 *initramfs;
+	int nr_entries;
 
 	memset(bp, 0, sizeof (struct boot_params));
 	bp->screen_info.orig_video_mode = 0;
@@ -121,7 +95,12 @@ static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 	} else {
 		bs_printk("Won't relocate initramfs, are you in SLE?\n");
 	}
-	sfi_setup_e820(bp);
+	if (mrst_identify_cpu() == MRST_CPU_CHIP_VALLEYVIEW2) {
+		nr_entries = get_e820_by_bios(bp->e820_map);
+		bp->e820_entries = (nr_entries > 0) ? nr_entries : 0;
+	} else {
+		sfi_setup_e820(bp);
+	}
 }
 
 static int get_32bit_entry(unsigned char *ptr)
@@ -187,8 +166,6 @@ static void setup_spi(void)
 
 int bootstub(void)
 {
-	setup_idt();
-	setup_gdt();
 	setup_spi();
 	bs_printk("Bootstub Version: 1.2 ...\n");
 	setup_boot_params((struct boot_params *)BOOT_PARAMS_OFFSET, 
