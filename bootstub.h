@@ -9,16 +9,20 @@
 #define CLOVERVIEW_FAMILY	0x30650
 #define VALLEYVIEW2_FAMILY	0x30670
 
-#define MRST_CPU_CHIP_LINCROFT	1
-#define MRST_CPU_CHIP_PENWELL	2
-#define MRST_CPU_CHIP_CLOVERVIEW 3
-#define MRST_CPU_CHIP_VALLEYVIEW2 4
+#define MID_CPU_CHIP_LINCROFT	1
+#define MID_CPU_CHIP_PENWELL	2
+#define MID_CPU_CHIP_CLOVERVIEW 3
+#define MID_CPU_CHIP_VALLEYVIEW2 4
+#define MID_CPU_CHIP_OTHER		0xFF
 
 #define CMDLINE_OFFSET		0x1100000
 #define BZIMAGE_SIZE_OFFSET	(CMDLINE_OFFSET + CMDLINE_SIZE)
 #define INITRD_SIZE_OFFSET	(BZIMAGE_SIZE_OFFSET + 4)
 #define SPI_UART_SUPPRESSION	(INITRD_SIZE_OFFSET + 4)
 #define SPI_TYPE		(SPI_UART_SUPPRESSION + 4) /*0:SPI0  1:SPI1*/
+#define SPI_0		0
+#define SPI_1		1
+
 #define STACK_OFFSET		0x1101000
 #define BZIMAGE_OFFSET		0x1102000
 
@@ -48,7 +52,7 @@
          ((u64)(base & 0x00ffffff) << 16) |     \
          ((u64)(limit & 0x0000ffff)))
 int get_e820_by_bios(void *e820_buf);
-int mrst_identify_cpu(void);
+int mid_identify_cpu(void);
 #endif
 
 #endif

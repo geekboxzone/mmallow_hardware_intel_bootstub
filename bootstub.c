@@ -27,6 +27,8 @@
 
 #define bs_printk(x) { if (! *(int *)SPI_UART_SUPPRESSION) bs_spi_printk(x);}
 
+extern int no_uart_used;
+
 static void *memcpy(void *dest, const void *src, size_t count)
 {
         char *tmp = dest;
@@ -95,7 +97,7 @@ static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 	} else {
 		bs_printk("Won't relocate initramfs, are you in SLE?\n");
 	}
-	if (mrst_identify_cpu() == MRST_CPU_CHIP_VALLEYVIEW2) {
+	if (mid_identify_cpu() == MID_CPU_CHIP_VALLEYVIEW2) {
 		nr_entries = get_e820_by_bios(bp->e820_map);
 		bp->e820_entries = (nr_entries > 0) ? nr_entries : 0;
 	} else {
@@ -133,33 +135,44 @@ enum cpuid_regs {
 	CR_EBX
 };
 
-int mrst_identify_cpu(void)
+int mid_identify_cpu(void)
 {
 	u32 regs[4];
 
 	cpuid(1, &regs[CR_EAX], &regs[CR_EBX], &regs[CR_ECX], &regs[CR_EDX]);
 
-	if ((regs[CR_EAX] & CPUID_MASK) == PENWELL_FAMILY)
-		return MRST_CPU_CHIP_PENWELL;
-	else if ((regs[CR_EAX] & CPUID_MASK) == CLOVERVIEW_FAMILY)
-		return MRST_CPU_CHIP_CLOVERVIEW;
-	else if ((regs[CR_EAX] & CPUID_MASK) == VALLEYVIEW2_FAMILY)
-		return MRST_CPU_CHIP_VALLEYVIEW2;
-	return MRST_CPU_CHIP_LINCROFT;
+	switch ( regs[CR_EAX] & CPUID_MASK ) {
+
+	case PENWELL_FAMILY:
+		return MID_CPU_CHIP_PENWELL;
+	case CLOVERVIEW_FAMILY:
+		return MID_CPU_CHIP_CLOVERVIEW;
+	case VALLEYVIEW2_FAMILY:
+		return MID_CPU_CHIP_VALLEYVIEW2;
+	default:
+		return MID_CPU_CHIP_OTHER;
+	}
 }
 
 static void setup_spi(void)
 {
 	if (!(*(int *)SPI_TYPE)) {
-		if (mrst_identify_cpu() == MRST_CPU_CHIP_PENWELL) {
-			*(int *)SPI_TYPE = 1;
-			bs_printk("Penwell detected ...\n");
-		} else if (mrst_identify_cpu() == MRST_CPU_CHIP_CLOVERVIEW) {
-			*(int *)SPI_TYPE = 1;
-			bs_printk("Cloverview detected ...\n");
-		} else {
-			*(int *)SPI_TYPE = 1;
-			bs_printk("Lincroft detected ...\n");
+		switch ( mid_identify_cpu() ) {
+
+		case MID_CPU_CHIP_PENWELL:
+			*(int *)SPI_TYPE = SPI_1;
+			bs_printk("PNW detected\n");
+			break;
+
+		case MID_CPU_CHIP_CLOVERVIEW:
+			*(int *)SPI_TYPE = SPI_1;
+			bs_printk("CLV detected\n");
+			break;
+
+		case MID_CPU_CHIP_VALLEYVIEW2:
+		case MID_CPU_CHIP_OTHER:
+		default:
+			no_uart_used = 1;
 		}
 	}
 }
@@ -167,7 +180,7 @@ static void setup_spi(void)
 int bootstub(void)
 {
 	setup_spi();
-	bs_printk("Bootstub Version: 1.2 ...\n");
+	bs_printk("Bootstub Version: 1.3 ...\n");
 	setup_boot_params((struct boot_params *)BOOT_PARAMS_OFFSET, 
 		(struct setup_header *)SETUP_HEADER_OFFSET);
 	bs_printk("Jump to kernel 32bit entry ...\n");

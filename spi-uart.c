@@ -22,6 +22,7 @@
 
 #define MRST_SPI_TIMEOUT	0x200000
 static int spi_inited = 0;
+int no_uart_used = 0;
 static volatile struct mrst_spi_reg *pspi = 0;
 
 static void spi_init()
@@ -30,24 +31,21 @@ static void spi_init()
 	u32 *clk_reg, clk_cdiv;
 
 	switch (*(int *)SPI_TYPE) {
-	case 0:
-		if (mrst_identify_cpu() == MRST_CPU_CHIP_CLOVERVIEW)
-			pspi = (struct mrst_spi_reg *)CTP_REGBASE_SPI0;
-		else
-			pspi = (struct mrst_spi_reg *)MRST_REGBASE_SPI0;
-		break;
-	case 1:
-		if (mrst_identify_cpu() == MRST_CPU_CHIP_CLOVERVIEW)
+	case SPI_1:
+		if (mid_identify_cpu() == MID_CPU_CHIP_CLOVERVIEW)
 			pspi = (struct mrst_spi_reg *)CTP_REGBASE_SPI1;
 		else
 			pspi = (struct mrst_spi_reg *)MRST_REGBASE_SPI1;
 		break;
+
+	case SPI_0:
 	default:
-		if (mrst_identify_cpu() == MRST_CPU_CHIP_CLOVERVIEW)
+		if (mid_identify_cpu() == MID_CPU_CHIP_CLOVERVIEW)
 			pspi = (struct mrst_spi_reg *)CTP_REGBASE_SPI0;
 		else
 			pspi = (struct mrst_spi_reg *)MRST_REGBASE_SPI0;
 	}
+
 	/* disable SPI controller first */
 	pspi->ssienr = 0x0;
 
@@ -75,6 +73,7 @@ static void spi_init()
 	pspi->ssienr |= 0x1;
 
 	spi_inited = 1;
+
 }
 
 /* set the ratio rate, INT */
@@ -122,6 +121,9 @@ static int spi_max3110_putc(char c)
 
 void bs_spi_printk(const char *str)
 {
+	if ( no_uart_used )
+		return;
+
 	if (!spi_inited) {
 		spi_init();
 		max3110_write_config();
