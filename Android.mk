@@ -4,17 +4,20 @@ include $(CLEAR_VARS)
 # First compile bootstub.bin
 
 CMDLINE_SIZE ?= 0x400
-BOOTSTUB_SIZE ?= 4096
+BOOTSTUB_SIZE ?= 8192
 
-LOCAL_SRC_FILES := bootstub.c spi-uart.c head.S sfi.c e820_bios.S ssp-uart.c
-ANDROID_TOOLCHAIN_FLAGS := -m32 -mno-android -ffreestanding
+LOCAL_CC := gcc
+LOCAL_SRC_FILES := bootstub.c head.S e820_bios.S sfi.c ssp-uart.c imr_toc.c spi-uart.c
+ANDROID_TOOLCHAIN_FLAGS := -m32 -ffreestanding
 LOCAL_CFLAGS := $(ANDROID_TOOLCHAIN_FLAGS) -Wall -O1 -DCMDLINE_SIZE=${CMDLINE_SIZE}
 LOCAL_MODULE := bootstub.bin
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_PATH := $(PRODUCT_OUT)
-
 LOCAL_MODULE_CLASS := EXECUTABLES
 LOCAL_FORCE_STATIC_EXECUTABLE := true
+
+
+head.o : PRIVATE_CFLAGS := -D__ASSEMBLY__
 
 include $(BUILD_SYSTEM)/binary.mk
 

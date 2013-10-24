@@ -20,92 +20,90 @@
 #include "types.h"
 #include "bootparam.h"
 #include "bootstub.h"
-#include "spi-uart.h"
+#include "mb.h"
 #include "sfi.h"
 
 #define SFI_BASE_ADDR		0x000E0000
 #define SFI_LENGTH		0x00020000
-#define SFI_TABLE_LENGTH	16
 
-static int sfi_table_check(struct sfi_table_header *sbh)
+static unsigned long sfi_search_mmap(unsigned long start, int len)
 {
-	char chksum = 0;
-	char *pos = (char *)sbh;
-	int i;
+	unsigned long i = 0;
+	char *pchar = (char *)start;
 
-	if (sbh->length < SFI_TABLE_LENGTH)
-		return -1;
-
-	if (sbh->length > SFI_LENGTH)
-		return -1;
-
-	for (i = 0; i < sbh->length; i++)
-		chksum += *pos++;
-
-	if (chksum)
-		bs_printk("sfi: Invalid checksum\n");
-
-	/* checksum is ok if zero */
-	return chksum;
+	for (i = 0; i < len; i++, pchar++) {
+		if (pchar[0] == 'M'
+			&& pchar[1] == 'M'
+			&& pchar[2] == 'A'
+			&& pchar[3] == 'P')
+			return start + i;
+	}
+	return 0;
 }
 
-static unsigned long sfi_search_mmap(void)
+int sfi_add_e820_entry(struct boot_params *bp, memory_map_t *mb_mmap, u64 start, u64 size, int type)
 {
-	u32 i = 0;
-	u32 *pos = (u32 *)SFI_BASE_ADDR;
-	u32 *end = (u32 *)(SFI_BASE_ADDR + SFI_LENGTH);
-	struct sfi_table_header *sbh;
-	struct sfi_table *sb;
-	u32 sys_entry_cnt = 0;
+        struct e820entry * e820_entry;
+	memory_map_t	*mb_mmap_entry;
+	int	i;
 
-	/* Find SYST table */
-	for (; pos < end; pos += 4) {
-		if (*pos == SFI_SYST_MAGIC) {
-			if (!sfi_table_check((struct sfi_table_header *)pos))
-				break;
+	/* ASSERT: bp != NULL */
+	/* ASSERT: mb_mmap != NULL */
+
+	for (i=0; i < bp->e820_entries; i++) {
+		e820_entry = &(bp->e820_map[i]);
+		mb_mmap_entry = &(mb_mmap[i]);
+		if (e820_entry->addr == start) {
+			/* Override size and type */
+			e820_entry->size = size;
+			e820_entry->type = type;
+			mb_mmap_entry->length_low = size;
+			mb_mmap_entry->length_high = 0;
+			mb_mmap_entry->type = (type == E820_RAM)?1:0;
+			return 0;
 		}
 	}
 
-	if (pos >= end) {
-		bs_printk("Bootstub: failed to locate SFI SYST table\n");
-		return 0;
-	}
+	/* ASSERT: no duplicate start address found */
+	if (bp->e820_entries == E820MAX)
+		return -1;
 
-	/* map table pointers */
-	sb = (struct sfi_table *)pos;
-	sbh = (struct sfi_table_header *)sb;
+	e820_entry = &(bp->e820_map[bp->e820_entries]);
+	mb_mmap_entry = &(mb_mmap[bp->e820_entries]);
 
-	sys_entry_cnt = (sbh->length - sizeof(struct sfi_table_header)) >> 3;
+	e820_entry->addr = start;
+	e820_entry->size = size;
+	e820_entry->type = type;
 
-	/* Search through each SYST entry for MMAP table */
-	for (i = 0; i < sys_entry_cnt; i++) {
-		sbh = (struct sfi_table_header *)sb->entry[i].low;
-		if (*(u32 *)sbh->signature == SFI_MMAP_MAGIC) {
-			if (!sfi_table_check((struct sfi_table_header *)sbh))
-				return (unsigned long) sbh;
-		}
-	}
+	mb_mmap_entry->size = 20;
+	mb_mmap_entry->base_addr_low = start;
+	mb_mmap_entry->base_addr_high = 0;
+	mb_mmap_entry->length_low = size;
+	mb_mmap_entry->length_high = 0;
+	mb_mmap_entry->type = (type == E820_RAM)?1:0;
+
+	bp->e820_entries++;
 
 	return 0;
 }
 
-void sfi_setup_e820(struct boot_params *bp)
+void sfi_setup_mmap(struct boot_params *bp, memory_map_t *mb_mmap)
 {
 	struct sfi_table *sb;
 	struct sfi_mem_entry *mentry;
 	unsigned long long start, end, size;
-	int i, num, type, total;
+	int i, num, type;
 
-	bp->e820_entries = 0;
-	total = 0;
+	if (bp)
+		bp->e820_entries = 0;
 
 	/* search for sfi mmap table */
-	sb = (struct sfi_table *)sfi_search_mmap();
+	sb = (struct sfi_table *)sfi_search_mmap(SFI_BASE_ADDR, SFI_LENGTH);
 	if (!sb) {
-		bs_printk("Bootstub: failed to locate SFI MMAP table\n");
+		bs_printk("Bootstub: SFI MMAP table not found\n");
 		return;
 	}
-	bs_printk("Bootstub: will use sfi mmap table for e820 table\n");
+	bs_printk("Bootstub: map SFI MMAP to e820 table\n");
 	num = SFI_GET_ENTRY_NUM(sb, sfi_mem_entry);
 	mentry = (struct sfi_mem_entry *)sb->pentry;
 
@@ -130,14 +128,10 @@ void sfi_setup_e820(struct boot_params *bp)
 			type = E820_RESERVED;
 		}
 
-		if (total == E820MAX)
+		if (sfi_add_e820_entry(bp, mb_mmap, start, size, type) != 0)
 			break;
-		bp->e820_map[total].addr = start;
-		bp->e820_map[total].size = size;
-		bp->e820_map[total++].type = type;
 
 		mentry++;
 	}
 
-	bp->e820_entries = total;
 }

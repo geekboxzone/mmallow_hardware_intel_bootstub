@@ -62,53 +62,26 @@
 _start:
 	cld
 	cli
-
-	/* Set our own GDT and IDT, don't derive from IAFW */
-	lgdtl	%cs:gdtr
-	lidtl	%cs:idtr
-
-	/* Load segment registers per protected mode kernel entry requirement:
-	 * CS=0x10,
-	 * DS=ES=SS=FS=GS=0x18
-	 */
-	ljmp	$__BOOT_CS, $1f
-1:
+	/* setup stack, because we are heading off to "C" */
+	movl $STACK_OFFSET, %esp
+	calll bootstub
+	/* after call bootstub, GDT is set, IDT is clear
+	* eax contains 32-bit entry of bzImage
+	*/
 	movl $__BOOT_DS, %ebx	
 	movl %ebx, %ds
 	movl %ebx, %es
 	movl %ebx, %fs
 	movl %ebx, %gs
 	movl %ebx, %ss
-
-	/* setup stack, because we are heading off to "C" */
-	movl $STACK_OFFSET, %esp
-
-	/* bootstub() returns 32bit entry address of bzImage, stored in eax */
-	calll bootstub
-
+	ljmp $__BOOT_CS,$1f
+1:
 	/* tell kernel where is boot_param */
 	movl $(BOOT_PARAMS_OFFSET), %esi
 	xor %ebp, %ebp
 	xor %edi, %edi
-	xor %ebx, %ebx
+	mov %eax, %ecx
+	mov mb_magic, %eax
+	mov mb_info, %ebx
 
-	/* Jump to the 32-bit entrypoint */
-	jmpl *%eax
-
-	.balign 8
-gdt:
-        .quad   0
-        .quad   0
-        .quad   GDT_ENTRY(0xc09b, 0, 0xfffff)
-        .quad   GDT_ENTRY(0xc093, 0, 0xfffff)
-gdtr:
-        .word   4*8-1
-        .long   gdt
-
-	.balign 8
-idt:
-	.quad	0
-	.quad	0
-idtr:
-	.word	2*8-1
-	.long	idt
+	jmpl *%ecx    # Jump to the 32-bit entrypoint
