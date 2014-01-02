@@ -468,7 +468,7 @@ int bootstub(void)
 	        sfi_setup_mmap(bp, mb_mmap);
 	}
 
-	if (mid_identify_cpu() != MID_CPU_CHIP_TANGIER) {
+	if ((mid_identify_cpu() != MID_CPU_CHIP_TANGIER) && (mid_identify_cpu() != MID_CPU_CHIP_ANNIEDALE)) {
 		if ((IMR6_END_ADDRESS > IMR6_START_ADDRESS) && (IMR7_END_ADDRESS > IMR7_START_ADDRESS)) {
 			imr_size  = PAGE_ALIGN_FWD(IMR6_END_ADDRESS - IMR6_START_ADDRESS);
 			load_imr_toc(IMR6_START_ADDRESS, imr_size, &imr6_toc, sizeof(imr6_toc));
