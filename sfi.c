@@ -47,8 +47,10 @@ int sfi_add_e820_entry(struct boot_params *bp, memory_map_t *mb_mmap, u64 start,
 	memory_map_t	*mb_mmap_entry;
 	int	i;
 
-	/* ASSERT: bp != NULL */
-	/* ASSERT: mb_mmap != NULL */
+	if (!bp || !mb_mmap) {
+		bs_printk("Bootstub: sfi_add_e820_entry failed\n");
+		return -1;
+	}
 
 	for (i=0; i < bp->e820_entries; i++) {
 		e820_entry = &(bp->e820_map[i]);
@@ -94,8 +96,12 @@ void sfi_setup_mmap(struct boot_params *bp, memory_map_t *mb_mmap)
 	unsigned long long start, end, size;
 	int i, num, type;
 
-	if (bp)
-		bp->e820_entries = 0;
+	if (!bp || !mb_mmap) {
+		bs_printk("Bootstub: sfi_setup_mmap failed\n");
+		return;
+	}
+
+	bp->e820_entries = 0;
 
 	/* search for sfi mmap table */
 	sb = (struct sfi_table *)sfi_search_mmap(SFI_BASE_ADDR, SFI_LENGTH);
