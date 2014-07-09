@@ -26,6 +26,7 @@
 #include "ssp-uart.h"
 #include "mb.h"
 #include "sfi.h"
+#include "bootimg.h"
 
 #include <stdint.h>
 #include <stddef.h>
@@ -129,6 +130,11 @@ int strncmp(const char *cs, const char *ct, size_t count)
 	return 0;
 }
 
+static inline int is_image_aosp(unsigned char *magic)
+{
+	return !strncmp((char *)magic, (char *)BOOT_MAGIC, sizeof(BOOT_MAGIC)-1);
+}
+
 static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 {
 	bp->screen_info.orig_video_mode = 0;
@@ -143,25 +149,43 @@ static void setup_boot_params(struct boot_params *bp, struct setup_header *sh)
 static u32 bzImage_setup(struct boot_params *bp, struct setup_header *sh)
 {
 	void *cmdline = (void *)BOOT_CMDLINE_OFFSET;
+	struct boot_img_hdr *aosp = (struct boot_img_hdr *)AOSP_HEADER_ADDRESS;
 	size_t cmdline_len;
-	u8 *initramfs, *ptr = (u8*)BZIMAGE_OFFSET;
+	u8 *initramfs, *ptr;
 
+	if (is_image_aosp(aosp->magic)) {
+		ptr = (u8*)aosp->kernel_addr;
+		cmdline_len = strnlen((const char *)aosp->cmdline, sizeof(aosp->cmdline));
 
-	cmdline_len = strnlen((const char *)CMDLINE_OFFSET, CMDLINE_SIZE);
+		/*
+		* Copy the command line to be after bootparams so that it won't be
+		* overwritten by the kernel executable.
+		*/
+		memset(cmdline, 0, sizeof(aosp->cmdline));
+		memcpy(cmdline, (const void *)aosp->cmdline, cmdline_len);
 
-	/*
-	 * Copy the command line to be after bootparams so that it won't be
-	 * overwritten by the kernel executable.
-	 */
-	memset(cmdline, 0, CMDLINE_SIZE);
-	memcpy(cmdline, (const void *)CMDLINE_OFFSET, cmdline_len);
+		bp->hdr.ramdisk_size = aosp->ramdisk_size;
+
+		initramfs = (u8 *)aosp->ramdisk_addr;
+	} else {
+		ptr = (u8*)BZIMAGE_OFFSET;
+		cmdline_len = strnlen((const char *)CMDLINE_OFFSET, CMDLINE_SIZE);
+		/*
+		 * Copy the command line to be after bootparams so that it won't be
+		 * overwritten by the kernel executable.
+		 */
+		memset(cmdline, 0, CMDLINE_SIZE);
+		memcpy(cmdline, (const void *)CMDLINE_OFFSET, cmdline_len);
+
+		bp->hdr.ramdisk_size = *(u32 *)INITRD_SIZE_OFFSET;
+
+		initramfs = (u8 *)BZIMAGE_OFFSET + *(u32 *)BZIMAGE_SIZE_OFFSET;
+	}
 
 	bp->hdr.cmd_line_ptr = BOOT_CMDLINE_OFFSET;
 	bp->hdr.cmdline_size = cmdline_len;
-	bp->hdr.ramdisk_size = *(u32 *)INITRD_SIZE_OFFSET;
 	bp->hdr.ramdisk_image = (bp->alt_mem_k*1024 - bp->hdr.ramdisk_size) & 0xFFFFF000;
 
-	initramfs = (u8 *)BZIMAGE_OFFSET + *(u32 *)BZIMAGE_SIZE_OFFSET;
 	if (*initramfs) {
 		bs_printk("Relocating initramfs to high memory ...\n");
 		memcpy((u8*)bp->hdr.ramdisk_image, initramfs, bp->hdr.ramdisk_size);
@@ -449,15 +473,24 @@ static void sec_plat_svcs_setup(void)
 int bootstub(void)
 {
 	u32 jmp;
+	struct boot_img_hdr *aosp = (struct boot_img_hdr *)AOSP_HEADER_ADDRESS;
 	struct boot_params *bp = (struct boot_params *)BOOT_PARAMS_OFFSET;
-	struct setup_header *sh = (struct setup_header *)SETUP_HEADER_OFFSET;
+	struct setup_header *sh;
 	u32 imr_size;
 	int nr_entries;
 
-        setup_idt();
+	if (is_image_aosp(aosp->magic)) {
+		sh = (struct setup_header *)((unsigned  int)aosp->kernel_addr + 0x1F1);
+		/* disable the bs_printk through SPI/UART */
+		*(int *)SPI_UART_SUPPRESSION = 1;
+		*(int *)SPI_TYPE = SPI_2;
+	} else
+		sh = (struct setup_header *)SETUP_HEADER_OFFSET;
+
+	setup_idt();
 	setup_gdt();
 	setup_spi();
-	bs_printk("Bootstub Version: 1.3 ...\n");
+	bs_printk("Bootstub Version: 1.4 ...\n");
 
 	memset(bp, 0, sizeof (struct boot_params));
 
