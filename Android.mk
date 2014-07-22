@@ -1,4 +1,7 @@
 LOCAL_PATH := $(call my-dir)
+    
+ifeq ($(TARGET_BOARD_PLATFORM),moorefield)
+
 include $(CLEAR_VARS)
 
 # First compile bootstub.bin
@@ -105,3 +108,5 @@ CHECK_BOOTSTUB_AOSP_SIZE : $(bootstub_aosp_bin)
 $(bootstub_aosp_full) : CHECK_BOOTSTUB_AOSP_SIZE
 	@echo "Generating bootstub $@"
 	$(hide) cat $(bootstub_aosp_bin) /dev/zero | dd bs=$(BOOTSTUB_SIZE) count=1 > $@
+
+endif #($(TARGET_BOARD_PLATFORM),moorefield)
