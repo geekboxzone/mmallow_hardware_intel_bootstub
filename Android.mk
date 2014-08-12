@@ -1,6 +1,21 @@
 LOCAL_PATH := $(call my-dir)
-    
+
+# HACK: Revert back to moorefield after bootstub compilation is fixed
 ifeq ($(TARGET_BOARD_PLATFORM),moorefield)
+
+# 2ndbootloader - temporary prebuilt
+include $(CLEAR_VARS)
+LOCAL_MODULE := 2ndbootloader
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_CLASS := ETC
+LOCAL_MODULE_PATH := $(PRODUCT_OUT)
+LOCAL_SRC_FILES := 2ndbootloader
+include $(BUILD_PREBUILT)
+
+endif #($(TARGET_BOARD_PLATFORM),moorefield)
+# END HACK
+
+ifeq ($(TARGET_BOARD_PLATFORM),moorefield_disabled)
 
 include $(CLEAR_VARS)
 
