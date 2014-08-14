@@ -1,16 +1,18 @@
 LOCAL_PATH := $(call my-dir)
-    
+
 ifeq ($(TARGET_BOARD_PLATFORM),moorefield)
-
-include $(CLEAR_VARS)
-
-# First compile bootstub.bin
 
 CMDLINE_SIZE ?= 0x400
 BOOTSTUB_SIZE ?= 8192
 
-LOCAL_CC := gcc
-LOCAL_SRC_FILES := bootstub.c head.S e820_bios.S sfi.c ssp-uart.c imr_toc.c spi-uart.c
+BOOTSTUB_SRC_FILES := bootstub.c sfi.c ssp-uart.c imr_toc.c spi-uart.c
+BOOTSTUB_SRC_FILES_x86 := head.S e820_bios.S
+
+include $(CLEAR_VARS)
+
+# bootstub.bin
+LOCAL_SRC_FILES := $(BOOTSTUB_SRC_FILES)
+LOCAL_SRC_FILES_x86 := $(BOOTSTUB_SRC_FILES_x86)
 ANDROID_TOOLCHAIN_FLAGS := -m32 -ffreestanding
 LOCAL_CFLAGS := $(ANDROID_TOOLCHAIN_FLAGS) -Wall -O1 -DCMDLINE_SIZE=${CMDLINE_SIZE}
 LOCAL_MODULE := bootstub.bin
@@ -20,15 +22,13 @@ LOCAL_MODULE_CLASS := EXECUTABLES
 LOCAL_FORCE_STATIC_EXECUTABLE := true
 
 
-head.o : PRIVATE_CFLAGS := -D__ASSEMBLY__
-
 include $(BUILD_SYSTEM)/binary.mk
 
 $(LOCAL_INTERMEDIATE_TARGETS): PRIVATE_TARGET_GLOBAL_CFLAGS := $(LOCAL_CFLAGS)
 $(LOCAL_BUILT_MODULE) : PRIVATE_ELF_FILE := $(intermediates)/$(PRIVATE_MODULE).elf
 $(LOCAL_BUILT_MODULE) : PRIVATE_LINK_SCRIPT := $(LOCAL_PATH)/bootstub.lds
 $(LOCAL_BUILT_MODULE) : BOOTSTUB_OBJS := $(patsubst %.c, %.o , $(LOCAL_SRC_FILES))
-$(LOCAL_BUILT_MODULE) : BOOTSTUB_OBJS := $(patsubst %.S, %.o , $(BOOTSTUB_OBJS))
+$(LOCAL_BUILT_MODULE) : BOOTSTUB_OBJS += $(patsubst %.S, %.o , $(LOCAL_SRC_FILES_x86))
 $(LOCAL_BUILT_MODULE) : BOOTSTUB_OBJS := $(addprefix $(intermediates)/, $(BOOTSTUB_OBJS))
 
 $(LOCAL_BUILT_MODULE): $(all_objects)
@@ -42,7 +42,6 @@ $(LOCAL_BUILT_MODULE): $(all_objects)
 	$(hide) $(TARGET_OBJCOPY) -O binary -R .note -R .comment -S $(PRIVATE_ELF_FILE) $@
 
 # Then assemble the final bootstub file
-
 bootstub_bin := $(PRODUCT_OUT)/bootstub.bin
 bootstub_full := $(PRODUCT_OUT)/bootstub
 
@@ -60,10 +59,9 @@ $(bootstub_full) : CHECK_BOOTSTUB_SIZE
 # build specific bootstub for GPT/AOSP image support
 include $(CLEAR_VARS)
 
-# First compile 2ndbootloader.bin
-
-LOCAL_CC := gcc
-LOCAL_SRC_FILES := bootstub.c head.S e820_bios.S sfi.c ssp-uart.c imr_toc.c spi-uart.c
+# 2ndbootloader.bin
+LOCAL_SRC_FILES := $(BOOTSTUB_SRC_FILES)
+LOCAL_SRC_FILES_x86 := $(BOOTSTUB_SRC_FILES_x86)
 ANDROID_TOOLCHAIN_FLAGS := -m32 -ffreestanding
 LOCAL_CFLAGS := $(ANDROID_TOOLCHAIN_FLAGS) -Wall -O1 -DCMDLINE_SIZE=${CMDLINE_SIZE} -DBUILD_RAMDUMP
 LOCAL_MODULE := 2ndbootloader.bin
@@ -72,15 +70,13 @@ LOCAL_MODULE_PATH := $(PRODUCT_OUT)
 LOCAL_MODULE_CLASS := EXECUTABLES
 LOCAL_FORCE_STATIC_EXECUTABLE := true
 
-head.o : PRIVATE_CFLAGS := -D__ASSEMBLY__
-
 include $(BUILD_SYSTEM)/binary.mk
 
 $(LOCAL_INTERMEDIATE_TARGETS): PRIVATE_TARGET_GLOBAL_CFLAGS := $(LOCAL_CFLAGS)
 $(LOCAL_BUILT_MODULE) : PRIVATE_ELF_FILE := $(intermediates)/$(PRIVATE_MODULE).elf
 $(LOCAL_BUILT_MODULE) : PRIVATE_LINK_SCRIPT := $(LOCAL_PATH)/2ndbootloader.lds
 $(LOCAL_BUILT_MODULE) : BOOTSTUB_OBJS := $(patsubst %.c, %.o , $(LOCAL_SRC_FILES))
-$(LOCAL_BUILT_MODULE) : BOOTSTUB_OBJS := $(patsubst %.S, %.o , $(BOOTSTUB_OBJS))
+$(LOCAL_BUILT_MODULE) : BOOTSTUB_OBJS += $(patsubst %.S, %.o , $(LOCAL_SRC_FILES_x86))
 $(LOCAL_BUILT_MODULE) : BOOTSTUB_OBJS := $(addprefix $(intermediates)/, $(BOOTSTUB_OBJS))
 
 $(LOCAL_BUILT_MODULE): $(all_objects)
@@ -93,8 +89,7 @@ $(LOCAL_BUILT_MODULE): $(all_objects)
 		-o $(PRIVATE_ELF_FILE)
 	$(hide) $(TARGET_OBJCOPY) -O binary -R .note -R .comment -S $(PRIVATE_ELF_FILE) $@
 
-# Then assemble the final bootstub file
-
+# Then assemble the final 2ndbootloader file
 bootstub_aosp_bin := $(PRODUCT_OUT)/2ndbootloader.bin
 bootstub_aosp_full := $(PRODUCT_OUT)/2ndbootloader
 

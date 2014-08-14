@@ -202,27 +202,15 @@ static u32 bzImage_setup(struct boot_params *bp, struct setup_header *sh)
 	return (((unsigned int)ptr+511)/512)*512;
 }
 
-static int get_32bit_entry(unsigned char *ptr)
+static inline void cpuid(u32 op, u32 regs[4])
 {
-	while (1){
-		if (*(u32 *)ptr == SETUP_SIGNATURE && *(u32 *)(ptr+4) == 0)
-			break;
-		ptr++;
-	}
-	ptr+=4;
-	return (((unsigned int)ptr+511)/512)*512;
-}
-
-static inline void cpuid(u32 op, u32 *eax, u32 *ebx, u32 *ecx, u32 *edx)
-{
-	*eax = op;
-	*ecx = 0;
-	asm volatile("cpuid"
-		: "=a" (*eax),
-		"=b" (*ebx),
-		"=c" (*ecx),
-		"=d" (*edx)
-		: "0" (*eax), "2" (*ecx));
+	__asm__ volatile (
+		"mov %%ebx, %%edi\n"
+		"cpuid\n"
+		"xchg %%edi, %%ebx\n"
+		: "=a"(regs[0]), "=D"(regs[1]), "=c"(regs[2]), "=d"(regs[3])
+		: "a"(op)
+		);
 }
 
 enum cpuid_regs {
@@ -236,7 +224,7 @@ int mid_identify_cpu(void)
 {
 	u32 regs[4];
 
-	cpuid(1, &regs[CR_EAX], &regs[CR_EBX], &regs[CR_ECX], &regs[CR_EDX]);
+	cpuid(1, regs);
 
 	switch ( regs[CR_EAX] & CPUID_MASK ) {
 
@@ -386,10 +374,10 @@ static u32 xen_multiboot_setup(void)
         }
 
 	mb.cmdline = (u32)strnchr((char *)CMDLINE_OFFSET, '$', CMDLINE_SIZE) + 1;
-	dst = mb.cmdline + strnlen(mb.cmdline, CMDLINE_SIZE) - 1;
+	dst = (char *)mb.cmdline + strnlen((const char *)mb.cmdline, CMDLINE_SIZE) - 1;
 	*dst = ' ';
 	dst++;
-	src = (const char *)CMDLINE_OFFSET;
+	src = (char *)CMDLINE_OFFSET;
 	for (i = 0 ;i < strnlen((const char *)CMDLINE_OFFSET, CMDLINE_SIZE);i++) {
 		if (!strncmp(src, "capfreq=", 8)) {
 			while (*src != ' ' && *src != 0) {
