@@ -99,9 +99,12 @@ CHECK_BOOTSTUB_AOSP_SIZE : $(bootstub_aosp_bin)
 		echo "$(bootstub_aosp_bin): $$ACTUAL_SIZE exceeds size limit of $(BOOTSTUB_SIZE) bytes, aborting."; \
 		exit 1; \
 	fi
-
-$(bootstub_aosp_full) : CHECK_BOOTSTUB_AOSP_SIZE
+BL_VERSION_FILE=vendor/asus/fugu/bootloader.img.sha1
+$(bootstub_aosp_full) : CHECK_BOOTSTUB_AOSP_SIZE $(BL_VERSION_FILE)
 	@echo "Generating bootstub $@"
 	$(hide) cat $(bootstub_aosp_bin) /dev/zero | dd bs=$(BOOTSTUB_SIZE) count=1 > $@
+	export bl_version=`tail -n 1 $(BL_VERSION_FILE) | cut -d- -f2`; \
+	export maj=`echo $$bl_version | cut -d. -f1`; export min=`echo $$bl_version | cut -d. -f2`; \
+	echo -en \\x$$maj\\x$$((min+1)) | dd of=$@ seek=$$(($(BOOTSTUB_SIZE)-2)) bs=1
 
 endif #($(TARGET_BOARD_PLATFORM),moorefield)
