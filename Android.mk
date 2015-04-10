@@ -1,5 +1,7 @@
 LOCAL_PATH := $(call my-dir)
 
+ifneq ($(filter moorefield merrifield, $(TARGET_BOARD_PLATFORM)),)
+
 include $(CLEAR_VARS)
 # bootstub.bin
 BOOTSTUB_BINARY := bootstub
@@ -26,3 +28,5 @@ BOOTSTUB_CFLAGS := -DBUILD_RAMDUMP
 BOOTSTUB_STACK_OFFSET := 0x78F00000
 BOOTSTUB_ENTRY := 0x78F00000
 include $(LOCAL_PATH)/bootstub.mk
+
+endif #($(filter moorefield merrifield, $(TARGET_BOARD_PLATFORM)),)
